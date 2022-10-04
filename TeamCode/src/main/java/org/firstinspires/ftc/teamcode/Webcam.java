@@ -5,53 +5,42 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.teamcode.Constants;
-import org.firstinspires.ftc.teamcode.ConeRecognizer;
-import org.firstinspires.ftc.teamcode.ShippingElementRecognizer;
 import org.opencv.core.Point;
-import org.opencv.core.Rect;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
-import java.util.List;
-
 public class Webcam {
     OpenCvWebcam webcam;
     OpenCvWebcam frontWebcam;
     OpenCvPipeline activePipeline;
     ShippingElementRecognizer shippingElementRecognizer;
-    DuckFinder duckFinder;
-    FreightFinder freightFinder;
+    ConeRecognizer coneRecognizer;
 
     public int getShippingHubLevel() {
         return shippingElementRecognizer.getShippingHubLevel();
     }
 
     public void switchToDuckPipeline(){
-        frontWebcam.setPipeline(duckFinder);
-        activePipeline = duckFinder;
+        frontWebcam.setPipeline(coneRecognizer);
+        activePipeline = coneRecognizer;
     }
 
-    public void switchToFreightPipeline(){
-        frontWebcam.setPipeline(freightFinder);
-        activePipeline = freightFinder;
-    }
     public Point getDuckCenter() {
-        return duckFinder.getDuckCenter();
+        return coneRecognizer.getDuckCenter();
     }
 
     public double getDuckAngle() {
-        return -duckFinder.calculateYaw(Constants.CAMERA_POSITION);
+        return -coneRecognizer.calculateYaw(Constants.CAMERA_POSITION);
     }
 
     public Double calculateYaw(double cameraPosition) {
-        if (activePipeline == duckFinder) {
-            return duckFinder.calculateYaw(cameraPosition);
+        if (activePipeline == coneRecognizer) {
+            return coneRecognizer.calculateYaw(cameraPosition);
         } else {
-            return freightFinder.calculateYaw(cameraPosition);
+            return null;
         }
     }
 
@@ -81,10 +70,9 @@ public class Webcam {
 
         // Second camera
         frontWebcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Front Webcam"), viewportContainerIds[1]);
-        ConeRecognizer cone = new ConeRecognizer(78);
-        freightFinder freight = new FreightFinder(78, 0,0);
-        frontWebcam.setPipeline(duckFinder);
-        activePipeline = duckFinder;
+        coneRecognizer = new ConeRecognizer(78);
+        frontWebcam.setPipeline(coneRecognizer);
+        activePipeline = coneRecognizer;
         frontWebcam.setMillisecondsPermissionTimeout(2500);
         frontWebcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override

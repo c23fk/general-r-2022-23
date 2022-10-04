@@ -25,4 +25,5 @@ public class Constants {
     public static final double TOLERANCE = Math.PI/32;
     public static final double CLAW_OPEN = 0.9;
     public static final double CLAW_CLOSED = 0.55;
+    public static final double CAMERA_POSITION = 0; //set this
 }
