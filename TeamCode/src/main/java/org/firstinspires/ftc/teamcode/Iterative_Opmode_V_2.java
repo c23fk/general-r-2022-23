@@ -44,7 +44,10 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.Const;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 /**
  * This file contains an example of an iterative (Non-Linear) "OpMode".
@@ -149,7 +152,7 @@ public class Iterative_Opmode_V_2 extends OpMode {
         claw = hardwareMap.get(Servo.class, "claw");
         //init slides
         //boxDoor.setPosition(Constants.BOX_CLOSED);
-        //claw.setPosition(Constants.CLAW_OPEN);
+        claw.setPosition(Constants.CLAW_OPEN);
         slides.setTargetPosition(slidesTarget);
         slides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         slides.setPower(Constants.SLIDE_POWER);
@@ -242,33 +245,50 @@ public class Iterative_Opmode_V_2 extends OpMode {
             slides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             slides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         }
-//        if (gamepad1.b) {
-//            claw.setPosition(Constants.CLAW_CLOSED);
-//        }
-//        if (gamepad1.y) {
-//            claw.setPosition(Constants.CLAW_OPEN);
-//        }
+        if (gamepad1.b) {
+            claw.setPosition(Constants.CLAW_CLOSED);
+        }
+        if (gamepad1.y) {
+            claw.setPosition(Constants.CLAW_OPEN);
+        }
+        int pos = 0;
+        if (wrist.getPosition() > 0){
+            wrist.setPosition(0);
+        }
+        else if (wrist.getPosition() < -20){
+            wrist.setPosition(-20);
+        }
+        else {
+            if (gamepad1.dpad_right) {
+                wrist.setPosition(pos + 1);
+            }
+            if (gamepad1.dpad_left) {
+                wrist.setPosition(pos - 1);
+            }
+        }
 
         //intake and output
-//        if (gamepad2.right_bumper && slides.getCurrentPosition() >= Constants.LOW_POSITION - 100) {
-//            wrist.setPosition(Constants.BOX_OPEN);
-//            intake.setPower(Constants.OUTPUT_POWER);
-//        } else if (gamepad2.left_bumper) {
-//            intake.setPower(Constants.INTAKE_POWER);
-//        } else if (gamepad1.right_bumper) {
-//            wrist.setPosition(Constants.BOX_OPEN);
-//            intake.setPower(Constants.OUTPUT_POWER);
-//        } else if (gamepad1.left_bumper) {
-//            intake.setPower(Constants.INTAKE_POWER);
-//        } else {
-//            intake.setPower(0);
-//            //boxDoor.setPosition(Constants.BOX_CLOSED);
-//        }
+        if (gamepad2.right_bumper && slides.getCurrentPosition() >= Constants.LOW_POSITION - 100) {
+            intake.setPower(Constants.OUTPUT_POWER);
+        } else if (gamepad2.left_bumper) {
+            intake.setPower(Constants.INTAKE_POWER);
+        } else if (gamepad1.right_bumper) {
+            intake.setPower(Constants.OUTPUT_POWER);
+        } else if (gamepad1.left_bumper) {
+            intake.setPower(Constants.INTAKE_POWER);
+        } else {
+            intake.setPower(0);
+        }
         if (gamepad1.triangle) {
             rotateToZero(0);
         }
         //telemetry
-
+        if(gamepad1.dpad_up){
+            boxNum+=0.01;
+        }
+        if(gamepad1.dpad_down){
+            boxNum-=0.01;
+        }
 //        if(gamepad1.right_stick_y > 0.1){
 //            clawNum+=0.01;
 //        }
@@ -277,8 +297,7 @@ public class Iterative_Opmode_V_2 extends OpMode {
 //        }
         //boxDoor.setPosition(boxNum);
         //claw.setPosition(clawNum);
-        telemetry.addData("claw position: ", clawNum);
-        telemetry.addData("wrist position: ", wrist.getPosition());
+        telemetry.addData("clawNum: ", clawNum);
         telemetry.addData("Slide Position: ", slides.getCurrentPosition());
         telemetry.addData("Distance on the left(cm): ", distLeft.getDistance(DistanceUnit.CM));
         telemetry.addData("Distance on the right(cm): ", distRight.getDistance(DistanceUnit.CM));

@@ -23,16 +23,16 @@ public class Webcam {
         return shippingElementRecognizer.getShippingHubLevel();
     }
 
-    public void switchToDuckPipeline(){
+    public void switchToConePipeline(){
         frontWebcam.setPipeline(coneRecognizer);
         activePipeline = coneRecognizer;
     }
 
-    public Point getDuckCenter() {
-        return coneRecognizer.getDuckCenter();
+    public Point getConeCenter() {
+        return coneRecognizer.getConeCenter();
     }
 
-    public double getDuckAngle() {
+    public double getConeAngle() {
         return -coneRecognizer.calculateYaw(Constants.CAMERA_POSITION);
     }
 
@@ -59,7 +59,7 @@ public class Webcam {
         webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
             public void onOpened() {
-                webcam.startStreaming(320, 240, OpenCvCameraRotation.SIDEWAYS_LEFT);
+                webcam.startStreaming(640, 480, OpenCvCameraRotation.SIDEWAYS_LEFT);
             }
 
             @Override
