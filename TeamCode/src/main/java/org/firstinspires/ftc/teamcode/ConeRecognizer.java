@@ -124,7 +124,7 @@ public class ConeRecognizer extends OpenCvPipeline {
             Imgproc.GaussianBlur(info, info, new org.opencv.core.Size(9, 9), 0);
 
             infoContours.clear();
-            Imgproc.findContours(mat, infoContours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
+            Imgproc.findContours(info, infoContours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
             for (int i = 0; i < coneContours.size(); i++) {
                 Rect rect = Imgproc.boundingRect(infoContours.get(i));
                 if (rect.width > 10 && rect.height > 10 && rect.y > verticalThreshold) {
@@ -150,13 +150,13 @@ public class ConeRecognizer extends OpenCvPipeline {
         Scalar greenH = new Scalar(70, 255, 255);
         Scalar orangeL = new Scalar(90, 100, 100);
         Scalar orangeH = new Scalar(110, 255, 255);
-        if (testColor(mat, info, infoRect, purpleL, purpleH)) {
+        if (testColor(info, infoRect, purpleL, purpleH)) {
             boolean isPurple = true;
         }
-        if (testColor(mat, info, infoRect, greenL, greenH)) {
+        if (testColor(info, infoRect, greenL, greenH)) {
             boolean isGreen = true;
         }
-        if (testColor(mat, info, infoRect, orangeL, orangeH)) {
+        if (testColor(info, infoRect, orangeL, orangeH)) {
             boolean isOrange = true;
         }
 
@@ -172,12 +172,12 @@ public class ConeRecognizer extends OpenCvPipeline {
     public boolean isOrange(){
         return isOrange();
     }
-    public boolean testColor(Mat mat, Mat info, Rect infoRect, Scalar lower, Scalar upper) {
+    public boolean testColor(Mat info, Rect infoRect, Scalar lower, Scalar upper) {
         Core.inRange(info, lower, upper, info);
         Imgproc.GaussianBlur(info, info, new org.opencv.core.Size(9, 9), 0);
 
         infoContours.clear();
-        Imgproc.findContours(mat, infoContours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
+        Imgproc.findContours(info, infoContours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
         for (int i = 0; i < coneContours.size(); i++) {
             Rect rect = Imgproc.boundingRect(infoContours.get(i));
             if (rect.width > 10 && rect.height > 10 && rect.y > verticalThreshold) {
@@ -188,7 +188,7 @@ public class ConeRecognizer extends OpenCvPipeline {
                 }
             }
         }
-        Imgproc.line(mat, new Point(0, verticalThreshold), new Point(mat.width(), verticalThreshold), new Scalar(255, 0, 0), 2);
+        Imgproc.line(info, new Point(0, verticalThreshold), new Point(info.width(), verticalThreshold), new Scalar(255, 0, 0), 2);
 
         return infoRect != null;
     }
