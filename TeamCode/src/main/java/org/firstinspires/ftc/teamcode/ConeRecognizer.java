@@ -17,6 +17,9 @@ public class ConeRecognizer extends OpenCvPipeline {
     Point infoCenter = null;
     Rect coneRect;
     Rect infoRect;
+    boolean isPurple = false;
+    boolean isGreen = false;
+    boolean isOrange = false;
 
 
     // Camera Settings
@@ -100,68 +103,45 @@ public class ConeRecognizer extends OpenCvPipeline {
         }
 
         Imgproc.line(mat, new Point(0, verticalThreshold), new Point(mat.width(), verticalThreshold), new Scalar(255, 0, 0), 2);
-
         if (coneRect != null){
             Imgproc.rectangle(input, coneRect, new Scalar(0, 255, 0));
             coneCenter = getCenterofRect(coneRect);
             coneOnScreen = true;
+            processCone(input,coneRect);
         } else {
             coneOnScreen = false;
         }
 
         mat.release();
-        processCone(mat, input, coneRect);
         return input;
     }
-    public Mat processCone(Mat mat, Mat input, Rect coneRect) {
-        Mat info = mat.submat(coneRect);
+    public Mat processCone(Mat input, Rect coneRect) {
+        Mat info = input.submat(coneRect);
         infoRect = null;
-        Imgproc.cvtColor(input, info, Imgproc.COLOR_RGB2HSV);
-
-            Scalar lower = new Scalar(160, 100, 100);
-            Scalar upper = new Scalar(180, 255, 255);
-            Core.inRange(info, lower, upper, info);
-            Imgproc.GaussianBlur(info, info, new org.opencv.core.Size(9, 9), 0);
-
-            infoContours.clear();
-            Imgproc.findContours(info, infoContours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
-            for (int i = 0; i < coneContours.size(); i++) {
-                Rect rect = Imgproc.boundingRect(infoContours.get(i));
-                if (rect.width > 10 && rect.height > 10 && rect.y > verticalThreshold) {
-                    if (infoRect == null) {
-                        infoRect = rect;
-                    } else if (rect.area() > infoRect.area()) {
-                        infoRect = rect;
-                    }
-                }
-            }
-        Imgproc.line(mat, new Point(0, verticalThreshold), new Point(mat.width(), verticalThreshold), new Scalar(255, 0, 0), 2);
-
-        if (infoRect != null){
-            Imgproc.rectangle(input, infoRect, new Scalar(0, 255, 0));
-            infoCenter = getCenterofRect(infoRect);
-            infoOnScreen = true;
-        } else {
-            infoOnScreen = false;
-        }
-        Scalar purpleL = new Scalar(240, 100, 100);
-        Scalar purpleH = new Scalar(260, 255, 255);
-        Scalar greenL = new Scalar(50, 100, 100);
+        Scalar lower = new Scalar(160, 100, 100);
+        Scalar upper = new Scalar(180, 255, 255);
+        Scalar purpleL = new Scalar(130, 100, 100);
+        Scalar purpleH = new Scalar(150, 255, 255);
+        Scalar greenL = new Scalar(40, 100, 100);
         Scalar greenH = new Scalar(70, 255, 255);
-        Scalar orangeL = new Scalar(90, 100, 100);
-        Scalar orangeH = new Scalar(110, 255, 255);
-        if (testColor(info, infoRect, purpleL, purpleH)) {
-            boolean isPurple = true;
-        }
-        if (testColor(info, infoRect, greenL, greenH)) {
-            boolean isGreen = true;
-        }
-        if (testColor(info, infoRect, orangeL, orangeH)) {
-            boolean isOrange = true;
+        Scalar orangeL = new Scalar(10, 100, 100);
+        Scalar orangeH = new Scalar(30, 255, 255);
+        try {
+            if (testColor(info, purpleL, purpleH)) {
+                isPurple = true;
+            }
+            if (testColor(info, greenL, greenH)) {
+                isGreen = true;
+            }
+            if (testColor(info, orangeL, orangeH)) {
+                isOrange = true;
+            }
+        } catch (Exception e) {
+            System.out.println("error");
         }
 
-        mat.release();
-        return input;
+        input.release();
+        return info;
     }
     public boolean isPurple(){
         return isPurple();
@@ -172,25 +152,31 @@ public class ConeRecognizer extends OpenCvPipeline {
     public boolean isOrange(){
         return isOrange();
     }
-    public boolean testColor(Mat info, Rect infoRect, Scalar lower, Scalar upper) {
-        Core.inRange(info, lower, upper, info);
-        Imgproc.GaussianBlur(info, info, new org.opencv.core.Size(9, 9), 0);
-
-        infoContours.clear();
-        Imgproc.findContours(info, infoContours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
-        for (int i = 0; i < coneContours.size(); i++) {
-            Rect rect = Imgproc.boundingRect(infoContours.get(i));
-            if (rect.width > 10 && rect.height > 10 && rect.y > verticalThreshold) {
-                if (infoRect == null) {
-                    infoRect = rect;
-                } else if (rect.area() > infoRect.area()) {
-                    infoRect = rect;
-                }
-            }
+    public boolean testColor(Mat info, Scalar lower, Scalar upper) {
+        Mat info_hsv = new Mat();
+        Imgproc.cvtColor(info, info_hsv, Imgproc.COLOR_RGB2HSV);
+        Core.inRange(info_hsv, lower, upper, info_hsv);
+        double info_val = 0;
+        for (int i = 0; i < 5; i++) {
+            info_val = info_val+ Core.sumElems(info_hsv).val[i];
         }
-        Imgproc.line(info, new Point(0, verticalThreshold), new Point(info.width(), verticalThreshold), new Scalar(255, 0, 0), 2);
+        return info_val > 5;
 
-        return infoRect != null;
+//        infoContours.clear();
+//        Imgproc.findContours(info_hsv, infoContours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
+//        for (int i = 0; i < coneContours.size(); i++) {
+//            Rect rect = Imgproc.boundingRect(infoContours.get(i));
+//            if (rect.width > 10 && rect.height > 10 && rect.y > verticalThreshold) {
+//                if (infoRect == null) {
+//                    infoRect = rect;
+//                } else if (rect.area() > infoRect.area()) {
+//                    infoRect = rect;
+//                }
+//            }
+//        }
+//        Imgproc.line(info_hsv, new Point(0, verticalThreshold), new Point(info_hsv.width(), verticalThreshold), new Scalar(255, 0, 0), 2);
+//
+//        return infoRect != null;
     }
 
     public Double calculateYaw(double offsetCenterX) {

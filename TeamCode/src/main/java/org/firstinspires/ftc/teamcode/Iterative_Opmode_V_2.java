@@ -255,8 +255,8 @@ public class Iterative_Opmode_V_2 extends OpMode {
         if (wrist.getPosition() > 0){
             wrist.setPosition(0);
         }
-        else if (wrist.getPosition() < -20){
-            wrist.setPosition(-20);
+        else if (wrist.getPosition() < -90){
+            wrist.setPosition(-90);
         }
         else {
             if (gamepad1.dpad_right) {
@@ -279,7 +279,7 @@ public class Iterative_Opmode_V_2 extends OpMode {
         } else {
             intake.setPower(0);
         }
-        if (gamepad1.triangle) {
+        if (gamepad2.y) {
             rotateToZero(0);
         }
         //telemetry

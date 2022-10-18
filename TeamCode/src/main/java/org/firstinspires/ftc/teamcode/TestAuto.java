@@ -82,17 +82,22 @@ public class TestAuto extends LinearOpMode {
 //        } else {
 //            level = 3;
 //        }
-        String color = null;
-        if (pipeline.isPurple()) {
+        String color = "";
+        int level = 1;
+        if (pipeline.isPurple) {
             color = "Purple";
+            level = 3;
         }
-        if (pipeline.isGreen()) {
+        if (pipeline.isOrange & !pipeline.isPurple) {
             color = "Green";
+            level = 1;
         }
-        if (pipeline.isOrange()) {
+        if (pipeline.isGreen & !pipeline.isPurple & !pipeline.isOrange) {
             color = "Orange";
+            level = 2;
         }
-        telemetry.addData("Color:", color);
+        telemetry.addData("Color", color);
+        telemetry.addData("Level", level);
         telemetry.update();
 //        int level = pipeline.getShippingHubLevel();
 //        telemetry.addData("Shipping Hub Level", level);
