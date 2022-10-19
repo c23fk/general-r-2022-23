@@ -258,6 +258,12 @@ public class Iterative_Opmode_V_2 extends OpMode {
         if (gamepad1.dpad_left) {
             wristPos -= 0.01;
         }
+        if (wristPos < 0.0) {
+            wristPos = 0.0;
+        }
+        if (wristPos > 0.5) {
+            wristPos = 0.5;
+        }
         wrist.setPosition(wristPos);
 
         //intake and output
