@@ -55,20 +55,15 @@ public class RobotHardware {
     private DcMotor frontRight = null;
     private DcMotor backLeft = null;
     private DcMotor backRight = null;
-    private double servoPosition = 0;
-//    private DcMotor spin = null;
     private DcMotor slides = null;
-//    private DcMotor intake = null;
+    private Servo wrist = null;
+    private Servo claw = null;
     private DistanceSensor distLeft = null;
     private DistanceSensor distRight = null;
     private DistanceSensor distBack = null;
-    private Servo boxDoor = null;
     private BNO055IMU imu = null;
 //    private OpenCvWebcam webcam;
     private boolean sensorFail = false;
-//    private Point elementPosition;
-//    private ShippingElementPipeline shippingPipeline;
-//    private CubePipeline cubePipeline;
     /* local OpMode members. */
     HardwareMap hardwareMap = null;
     Telemetry telemetry;
@@ -109,15 +104,17 @@ public class RobotHardware {
         //spin.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         slides.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         //intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
+        wrist = hardwareMap.get(Servo.class, "wrist");
+        claw = hardwareMap.get(Servo.class, "claw");
+        //init slides
+        claw.setPosition(Constants.CLAW_OPEN);
+        wrist.setPosition(0.5);
         // Set all motors to zero power
         frontLeft.setPower(0);
         frontRight.setPower(0);
         backLeft.setPower(0);
         backRight.setPower(0);
-        //spin.setPower(0);
         slides.setPower(0);
-        //intake.setPower(0);
 
         // Reset all encoders and set the motors to run using the encoders
         slides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -130,16 +127,11 @@ public class RobotHardware {
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        //intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        //.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-
+        initSlides();
         //define and initialize sensors
         distLeft = hardwareMap.get(DistanceSensor.class, "distLeft");
         distRight = hardwareMap.get(DistanceSensor.class, "distRight");
         distBack = hardwareMap.get(DistanceSensor.class, "distBack");
-        boxDoor = hardwareMap.get(Servo.class, "boxDoor");
-        boxDoor.setPosition(Constants.BOX_CLOSED);
         //define and initialize imu
         imu = hardwareMap.get(BNO055IMU.class, "imu 1");
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
@@ -148,7 +140,6 @@ public class RobotHardware {
         parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
         parameters.loggingEnabled = false;
         imu.initialize(parameters);
-
         //initialize the camera
         telemetry.addData("Camera status:", "waiting");
         telemetry.update();
@@ -181,32 +172,6 @@ public class RobotHardware {
         telemetry.update();
     }
 
-
-//    public void spinnerPower(double power) {
-//        spin.setPower(power);
-//    }
-
-//    public Point getElementPosition() {
-//        return elementPosition;
-//    }
-
-//    public int getSlideHeight(){
-//        ElapsedTime timer = new ElapsedTime();
-//        if (getElementPosition() == null) return Constants.HIGH_POSITION;
-//        double center = getElementPosition().x;
-//        if(center<Constants.MID_THRESH)return Constants.LOW_POSITION;
-//        if(center<Constants.HIGH_THRESH)return Constants.MID_POSITION;
-//        return Constants.HIGH_POSITION;
-//    }
-
-//    public int getSlideHeight2(){
-//        if (getElementPosition() == null) return Constants.HIGH_POSITION;
-//        double center = shippingPipeline.getPoint().x;
-//        if(center<Constants.MID_THRESH)return Constants.LOW_POSITION;
-//        if(center<Constants.HIGH_THRESH)return Constants.MID_POSITION;
-//        return Constants.HIGH_POSITION;
-//    }
-
     public void initSlides() {
         slides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         slides.setTargetPosition(Constants.INTAKE_POSITION);
@@ -218,7 +183,19 @@ public class RobotHardware {
         slides.setTargetPosition(pos);
     }
 
-    @Deprecated
+    public double getLeftDistance() {
+        return distLeft.getDistance(DistanceUnit.CM);
+    }
+
+    public double getRightDistance() {
+        return distRight.getDistance(DistanceUnit.CM);
+    }
+
+    public double getBackDistance() {
+        return distBack.getDistance(DistanceUnit.CM);
+    }
+
+    //rotation
     public void rotateLeft(double power, double timeout) {
         ElapsedTime timer = new ElapsedTime();
         frontLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -238,8 +215,6 @@ public class RobotHardware {
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
-
-    @Deprecated
     public void rotateLeft(double power, int position, double timeout) {
         //TIMER :)
         ElapsedTime timer = new ElapsedTime();
@@ -269,45 +244,7 @@ public class RobotHardware {
         stopDrive();
     }
 
-    public double getLeftDistance() {
-        return distLeft.getDistance(DistanceUnit.CM);
-    }
-
-    public double getRightDistance() {
-        return distRight.getDistance(DistanceUnit.CM);
-    }
-
-    public double getBackDistance() {
-        return distBack.getDistance(DistanceUnit.CM);
-    }
-
-
-//    public void setCubePipeline(){`
-//        webcam.setPipeline(cubePipeline);
-//        telemetry.addData("Pipeline chosen", "Cube");
-//        telemetry.update();
-//    }
-
-//    public double getGroundDistance(){
-//        return cubePipeline.getGroundDistance();
-//    }
-
-
-//    public void output(boolean on) {
-//        if (on) {
-//            boxDoor.setPosition(Constants.BOX_OPEN);
-//            intake.setPower(Constants.OUTPUT_POWER);
-//        } else {
-//            intake.setPower(0);
-//            boxDoor.setPosition(Constants.BOX_CLOSED);
-//        }
-//    }
-
-    //public void intake(boolean on){
-//        intake.setPower(on?Constants.INTAKE_POWER:0);
-//    }
-
-    @Deprecated
+    //drive forward
     public void forwardDrive(double power) {
         frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -319,8 +256,6 @@ public class RobotHardware {
         backLeft.setPower(-power);
         backRight.setPower(power);
     }
-
-    @Deprecated
     public void forwardDrive(double power, int position, double timeout) {
         //TIMER :)
         ElapsedTime timer = new ElapsedTime();
@@ -350,7 +285,7 @@ public class RobotHardware {
         stopDrive();
     }
 
-    @Deprecated
+    //strafe right
     public void strafeRight(double power) {
         frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -362,8 +297,6 @@ public class RobotHardware {
         backLeft.setPower(power);
         backRight.setPower(power);
     }
-
-    @Deprecated
     public void strafeRight(double power, int position, double timeout) {
         //TIMER :)
         ElapsedTime timer = new ElapsedTime();
@@ -393,6 +326,7 @@ public class RobotHardware {
         stopDrive();
     }
 
+
     public void stopDrive() {
         frontLeft.setPower(0);
         frontRight.setPower(0);
@@ -402,18 +336,6 @@ public class RobotHardware {
 
     public double getAngle(){
         return imu.getAngularOrientation().firstAngle;
-    }
-
-    public DistanceSensor getDistLeft() {
-        return distLeft;
-    }
-
-    public DistanceSensor getDistRight() {
-        return distRight;
-    }
-
-    public DistanceSensor getDistBack() {
-        return distBack;
     }
 
     public void driveByAngleSensor(double angle, DistanceSensor sensor, double toDistance, double timeout){
@@ -474,9 +396,7 @@ public class RobotHardware {
         stopDrive();
         telemetry.update();
     }
-    public void angle(double angle) {
-        driveByAngleEncoder(0,0,angle,0.2,5);
-    }
+
     public void driveByAngleEncoder(double angle, double distance, double targetRotation, double power, double timeout) {
         //timer
         ElapsedTime timer = new ElapsedTime();
@@ -545,6 +465,7 @@ public class RobotHardware {
         //end the path
         //stopDrive();
     }
+
     public void driveByTime(double angle, double time, double targetRotation, double power, double timeout) {
         //timer
         ElapsedTime timer = new ElapsedTime();

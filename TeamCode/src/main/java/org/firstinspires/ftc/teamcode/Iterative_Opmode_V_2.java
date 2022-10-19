@@ -81,7 +81,7 @@ public class Iterative_Opmode_V_2 extends OpMode {
     private Servo wrist = null;
     private Servo claw = null;
     private int slidesTarget = Constants.INTAKE_POSITION;
-    public double clawNum = 0.0;
+    //public double clawNum = 0.0;
     private double wristPos = 0.5;
 
 
@@ -273,7 +273,7 @@ public class Iterative_Opmode_V_2 extends OpMode {
 
 
     private void rotateToZero(double angle) {
-        //use a PID control loop to
+        //use a PID control loop to zero
         ElapsedTime timer = new ElapsedTime();
         timer.reset();
         double k_p = Math.PI/8;
