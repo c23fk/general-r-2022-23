@@ -87,6 +87,7 @@ public class Iterative_Opmode_V_2 extends OpMode {
     public double boxNum = 0.830;
     public double clawNum = 0.0;
     private double boxTest = 0.5;
+    private double wristPos = 0.5;
 
 
     /*
@@ -251,21 +252,13 @@ public class Iterative_Opmode_V_2 extends OpMode {
         if (gamepad1.y) {
             claw.setPosition(Constants.CLAW_OPEN);
         }
-        int pos = 0;
-        if (wrist.getPosition() > 0){
-            wrist.setPosition(0);
+        if (gamepad1.dpad_right) {
+            wristPos += 0.01;
         }
-        else if (wrist.getPosition() < -90){
-            wrist.setPosition(-90);
+        if (gamepad1.dpad_left) {
+            wristPos -= 0.01;
         }
-        else {
-            if (gamepad1.dpad_right) {
-                wrist.setPosition(pos + 1);
-            }
-            if (gamepad1.dpad_left) {
-                wrist.setPosition(pos - 1);
-            }
-        }
+        wrist.setPosition(wristPos);
 
         //intake and output
         if (gamepad2.right_bumper && slides.getCurrentPosition() >= Constants.LOW_POSITION - 100) {
@@ -298,6 +291,7 @@ public class Iterative_Opmode_V_2 extends OpMode {
         //boxDoor.setPosition(boxNum);
         //claw.setPosition(clawNum);
         telemetry.addData("clawNum: ", clawNum);
+        telemetry.addData("wristpos: ", wristPos);
         telemetry.addData("Slide Position: ", slides.getCurrentPosition());
         telemetry.addData("Distance on the left(cm): ", distLeft.getDistance(DistanceUnit.CM));
         telemetry.addData("Distance on the right(cm): ", distRight.getDistance(DistanceUnit.CM));
