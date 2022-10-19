@@ -73,20 +73,15 @@ public class Iterative_Opmode_V_2 extends OpMode {
     private DcMotor frontRight = null;
     private DcMotor backLeft = null;
     private DcMotor backRight = null;
-    private DcMotor spin = null;
     private DcMotor slides = null;
-    private DcMotor intake = null;
     private DistanceSensor distLeft = null;
     private DistanceSensor distRight = null;
     private DistanceSensor distBack = null;
-    private DigitalChannel magSwitch = null;
     private BNO055IMU imu = null;
     private Servo wrist = null;
     private Servo claw = null;
     private int slidesTarget = Constants.INTAKE_POSITION;
-    public double boxNum = 0.830;
     public double clawNum = 0.0;
-    private double boxTest = 0.5;
     private double wristPos = 0.5;
 
 
@@ -103,9 +98,7 @@ public class Iterative_Opmode_V_2 extends OpMode {
         frontRight = hardwareMap.get(DcMotor.class, "fr");
         backRight = hardwareMap.get(DcMotor.class, "br");
         backLeft = hardwareMap.get(DcMotor.class, "bl");
-        spin = hardwareMap.get(DcMotor.class, "spin");
         slides = hardwareMap.get(DcMotor.class, "slides");
-        intake = hardwareMap.get(DcMotor.class, "nom");
         //initialize the imu
         imu = hardwareMap.get(BNO055IMU.class, "imu 1");
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
@@ -119,17 +112,15 @@ public class Iterative_Opmode_V_2 extends OpMode {
         frontRight.setDirection(DcMotor.Direction.FORWARD);
         backLeft.setDirection(DcMotor.Direction.FORWARD);
         backRight.setDirection(DcMotor.Direction.FORWARD);
-        spin.setDirection(DcMotorSimple.Direction.FORWARD);
         slides.setDirection(DcMotorSimple.Direction.FORWARD);
-        intake.setDirection(DcMotorSimple.Direction.FORWARD);
+
         //set zero behaviors
         frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        spin.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         slides.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+
         //reset encoders for all the motors
         slides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -140,19 +131,14 @@ public class Iterative_Opmode_V_2 extends OpMode {
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        spin.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         //initialize distance sensors
         distLeft = hardwareMap.get(DistanceSensor.class, "distLeft");
         distRight = hardwareMap.get(DistanceSensor.class, "distRight");
         distBack = hardwareMap.get(DistanceSensor.class, "distBack");
-        magSwitch = hardwareMap.get(DigitalChannel.class, "mag");
-        magSwitch.setMode(DigitalChannel.Mode.INPUT);
         wrist = hardwareMap.get(Servo.class, "wrist");
         claw = hardwareMap.get(Servo.class, "claw");
         //init slides
-        //boxDoor.setPosition(Constants.BOX_CLOSED);
         claw.setPosition(Constants.CLAW_OPEN);
         slides.setTargetPosition(slidesTarget);
         slides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -211,34 +197,22 @@ public class Iterative_Opmode_V_2 extends OpMode {
         } else {
             stopDrive();
         }
-        //duck spinner
-        if (gamepad2.a) {
-            spin.setPower(Constants.DUCK_POWER);
-        } else if (gamepad2.b) {
-            spin.setPower(-Constants.DUCK_POWER);
-        } else {
-            spin.setPower(0);
-        }
-        //slides
+        //slide presets
         if (gamepad2.dpad_up) {
             slidesTarget = Constants.HIGH_POSITION + 50;
-            //boxDoor.setPosition(Constants.BOX_CLOSED);
         } else if (gamepad2.dpad_right) {
             slidesTarget = Constants.MID_POSITION;
-            //boxDoor.setPosition(Constants.BOX_CLOSED);
         } else if (gamepad2.dpad_left) {
             slidesTarget = Constants.LOW_POSITION;
-            //boxDoor.setPosition(Constants.BOX_CLOSED);
         } else if (gamepad2.dpad_down) {
             slidesTarget = Constants.INTAKE_POSITION;
-            //boxDoor.setPosition(Constants.BOX_CLOSED);
         } else if (gamepad2.triangle) {
             slidesTarget = Constants.SHARED_POSITION;
-            //boxDoor.setPosition(Constants.BOX_CLOSED);
         }
         //manual adjustments to slide positions
-        slidesTarget += -gamepad2.right_stick_y * 25;
-        slidesTarget = Range.clip(slidesTarget, -50, Constants.SLIDE_MAX);
+        slidesTarget += -gamepad2.right_stick_y * 50;
+        slidesTarget = Range.clip(slidesTarget, -250, Constants.SLIDE_MAX);
+        //move the slides
         slides.setTargetPosition(slidesTarget);
         slides.setPower(Constants.SLIDE_POWER);
         //reset the zero position of the slides
@@ -246,58 +220,39 @@ public class Iterative_Opmode_V_2 extends OpMode {
             slides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             slides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         }
-        if (gamepad1.b) {
+
+        //Claw
+        if (gamepad2.b) {
             claw.setPosition(Constants.CLAW_CLOSED);
         }
-        if (gamepad1.y) {
+        if (gamepad2.y) {
             claw.setPosition(Constants.CLAW_OPEN);
         }
-        if (gamepad1.dpad_right) {
+        //wrist
+        if (gamepad2.dpad_right) {
             wristPos += 0.01;
         }
-        if (gamepad1.dpad_left) {
+        if (gamepad2.dpad_left) {
             wristPos -= 0.01;
         }
-        if (wristPos < 0.0) {
-            wristPos = 0.0;
-        }
-        if (wristPos > 0.5) {
-            wristPos = 0.5;
-        }
+        wristPos = Range.clip(wristPos, 0, 0.75);
         wrist.setPosition(wristPos);
-
-        //intake and output
-        if (gamepad2.right_bumper && slides.getCurrentPosition() >= Constants.LOW_POSITION - 100) {
-            intake.setPower(Constants.OUTPUT_POWER);
-        } else if (gamepad2.left_bumper) {
-            intake.setPower(Constants.INTAKE_POWER);
-        } else if (gamepad1.right_bumper) {
-            intake.setPower(Constants.OUTPUT_POWER);
-        } else if (gamepad1.left_bumper) {
-            intake.setPower(Constants.INTAKE_POWER);
-        } else {
-            intake.setPower(0);
-        }
-        if (gamepad2.y) {
+        //driver zeroing
+        if (gamepad1.y) {
             rotateToZero(0);
         }
-        //telemetry
-        if(gamepad1.dpad_up){
-            boxNum+=0.01;
-        }
-        if(gamepad1.dpad_down){
-            boxNum-=0.01;
-        }
+
 //        if(gamepad1.right_stick_y > 0.1){
 //            clawNum+=0.01;
 //        }
 //        if(gamepad1.right_stick_y < -0.1){
 //            clawNum-=0.01;
 //        }
-        //boxDoor.setPosition(boxNum);
-        //claw.setPosition(clawNum);
-        telemetry.addData("clawNum: ", clawNum);
-        telemetry.addData("wristpos: ", wristPos);
+//        claw.setPosition(clawNum);
+
+        //telemetry.addData("clawNum: ", clawNum);
+
+        telemetry.addData("wristPos: ", wristPos);
         telemetry.addData("Slide Position: ", slides.getCurrentPosition());
         telemetry.addData("Distance on the left(cm): ", distLeft.getDistance(DistanceUnit.CM));
         telemetry.addData("Distance on the right(cm): ", distRight.getDistance(DistanceUnit.CM));
@@ -307,7 +262,6 @@ public class Iterative_Opmode_V_2 extends OpMode {
         telemetry.addData("BL: ", backLeft.getCurrentPosition());
         telemetry.addData("BR: ", backRight.getCurrentPosition());
         telemetry.addData("Angle: ", imu.getAngularOrientation().firstAngle);
-        telemetry.addData("RIGHT TRIGGER: ", gamepad1.right_trigger);
     }
 
     private void stopDrive() {
@@ -317,9 +271,6 @@ public class Iterative_Opmode_V_2 extends OpMode {
         backRight.setPower(0);
     }
 
-    /*
-     * Code to run ONCE after the driver hits STOP
-     */
 
     private void rotateToZero(double angle) {
         //use a PID control loop to
@@ -357,6 +308,10 @@ public class Iterative_Opmode_V_2 extends OpMode {
 
         stopDrive();
     }
+
+    /*
+     * Code to run ONCE after the driver hits STOP
+     */
     @Override
     public void stop() {
     }
