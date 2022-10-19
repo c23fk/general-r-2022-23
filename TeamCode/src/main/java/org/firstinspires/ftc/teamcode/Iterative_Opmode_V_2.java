@@ -206,8 +206,6 @@ public class Iterative_Opmode_V_2 extends OpMode {
             slidesTarget = Constants.LOW_POSITION;
         } else if (gamepad2.dpad_down) {
             slidesTarget = Constants.INTAKE_POSITION;
-        } else if (gamepad2.triangle) {
-            slidesTarget = Constants.SHARED_POSITION;
         }
         //manual adjustments to slide positions
         slidesTarget += -gamepad2.right_stick_y * 50;
