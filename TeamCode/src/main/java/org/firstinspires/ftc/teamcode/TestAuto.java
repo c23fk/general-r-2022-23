@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode;
 
+import static org.firstinspires.ftc.teamcode.Constants.CAM_HEIGHT;
+import static org.firstinspires.ftc.teamcode.Constants.CAM_WIDTH;
+
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -38,7 +41,7 @@ public class TestAuto extends LinearOpMode {
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "webcam1"), cameraMonitorViewId);
-        ConeRecognizer pipeline = new ConeRecognizer(5);
+        ElementRecognizer pipeline = new ElementRecognizer();
         webcam.setPipeline(pipeline);
         webcam.setMillisecondsPermissionTimeout(2500);
         webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
@@ -46,7 +49,7 @@ public class TestAuto extends LinearOpMode {
 
             @Override
             public void onOpened() {
-                webcam.startStreaming(640, 480, OpenCvCameraRotation.SIDEWAYS_LEFT);
+                webcam.startStreaming(Constants.CAM_WIDTH, Constants.CAM_HEIGHT, OpenCvCameraRotation.SIDEWAYS_LEFT);
                 telemetry.addData("Status", "Webcam on");
                 telemetry.update();
 
@@ -57,7 +60,7 @@ public class TestAuto extends LinearOpMode {
                 // This will be called if the camera could not be opened
             }
         });
-
+        while(pipeline == null){}
         waitForStart();
         //lift encoder numbers
         //bottom is 1200
@@ -65,69 +68,54 @@ public class TestAuto extends LinearOpMode {
 
         runtime.reset();
 
-//        int level;
-//        int[] counts = {0,0,0};
-//        for(int i=0;i<50;i++) {
-//            if(pipeline.getShippingHubLevel() == 0) {
-//                i = 0;
-//                continue;
-//            }
-//            counts[pipeline.getShippingHubLevel() - 1] ++;
-//        }
-//
-//        if(counts[0] > counts[1] && counts[0] > counts[2]) {
-//            level = 1;
-//        } else if(counts[1] > counts[0] && counts[1] > counts[2]) {
-//            level = 2;
-//        } else {
-//            level = 3;
-//        }
-        String color = "";
-        int level = 1;
-        if (pipeline.isPurple) {
-            color = "Purple";
-            level = 3;
+        int area;
+        int[] counts = {0,0,0};
+        for(int i=0;i<50;i++) {
+            if(pipeline.getParkingArea() == 0) {
+                i = 0;
+                continue;
+            }
+            counts[pipeline.getParkingArea() - 1] ++;
         }
-        if (pipeline.isOrange & !pipeline.isPurple) {
-            color = "Green";
-            level = 1;
+
+        if(counts[0] > counts[1] && counts[0] > counts[2]) {
+            area = 1;
+        } else if(counts[1] > counts[0] && counts[1] > counts[2]) {
+            area = 2;
+        } else {
+            area = 3;
         }
-        if (pipeline.isGreen & !pipeline.isPurple & !pipeline.isOrange) {
-            color = "Orange";
-            level = 2;
-        }
-        telemetry.addData("Color", color);
-        telemetry.addData("Level", level);
+        telemetry.addData("Parking Area: ", area);
         telemetry.update();
-//        int level = pipeline.getShippingHubLevel();
-//        telemetry.addData("Shipping Hub Level", level);
+//        int area = pipeline.getShippingHubLevel();
+//        telemetry.addData("Shipping Hub Level", area);
 //        telemetry.update();
 //
 
 //
-//        telemetry.addData("Shipping Hub Level", level);
+//        telemetry.addData("Shipping Hub Level", area);
 //        telemetry.update();
 
         // Drive to the the shipping hub
 
 
-        // Deposit the box on the correct level
+        // Deposit the box on the correct area
 
 //       encoder auto
 //
-//        if(level == 1) {
+//        if(area == 1) {
 //
-//            telemetry.addData("Shipping Hub Level", level);
+//            telemetry.addData("Shipping Hub Level", area);
 //            telemetry.update();
 //            Thread.sleep(700);
-//        } else if (level == 2) {
+//        } else if (area == 2) {
 //
-//            telemetry.addData("Shipping Hub Level", level);
+//            telemetry.addData("Shipping Hub Level", area);
 //            telemetry.update();
 //            Thread.sleep(1000);
 //        } else {
 //
-//            telemetry.addData("Shipping Hub Level", level);
+//            telemetry.addData("Shipping Hub Level", area);
 //            telemetry.update();
 //            Thread.sleep(1000);
 //        }
