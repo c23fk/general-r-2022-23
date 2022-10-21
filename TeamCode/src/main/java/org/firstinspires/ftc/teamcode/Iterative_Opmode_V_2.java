@@ -83,6 +83,7 @@ public class Iterative_Opmode_V_2 extends OpMode {
     private int slidesTarget = Constants.INTAKE_POSITION;
     //public double clawNum = 0.0;
     private double wristPos = 0.5;
+    private double clawPos = Constants.CLAW_OPEN;
 
 
     /*
@@ -176,11 +177,17 @@ public class Iterative_Opmode_V_2 extends OpMode {
         //rotate the positions to prep for wheel powers
         double rotatedX = (stickX * Math.cos(PI / 4 - angle)) - (stickY * Math.sin(PI / 4 - angle));
         double rotatedY = (stickY * Math.cos(PI / 4 - angle)) + (stickX * Math.sin(PI / 4 - angle));
+        if(rotatedX == 0 && rotatedY == 0){
+            stickX = Math.abs(gamepad1.right_stick_x) < Constants.STICK_THRESH ? 0 : gamepad1.right_stick_x;
+            stickY = Math.abs(gamepad1.right_stick_y) < Constants.STICK_THRESH ? 0 : -gamepad1.right_stick_y;
+            rotatedX = (stickX * Math.cos(PI / 4)) - (stickY * Math.sin(PI / 4));
+            rotatedY = (stickY * Math.cos(PI / 4)) + (stickX * Math.sin(PI / 4));
+        }
         //determine how much the robot should turn
         double rotation = gamepad1.left_trigger * Constants.ROTATION_SENSITIVITY - gamepad1.right_trigger * Constants.ROTATION_SENSITIVITY;
         //test if the robot should move
         boolean areTriggersDown = Math.abs(rotation) > Constants.STICK_THRESH;
-        boolean areSticksMoved = Math.sqrt((stickX * stickX) + (stickY * stickY)) > Constants.STICK_THRESH;
+        boolean areSticksMoved = Math.sqrt((rotatedX * rotatedX) + (rotatedY * rotatedY)) > Constants.STICK_THRESH;
         if (areSticksMoved || areTriggersDown) {
             //add the rotation to the powers of the wheels
             double flPower = -rotatedY + rotation;
@@ -198,18 +205,18 @@ public class Iterative_Opmode_V_2 extends OpMode {
             stopDrive();
         }
         //slide presets
-        if (gamepad2.dpad_up) {
-            slidesTarget = Constants.HIGH_POSITION + 50;
-        } else if (gamepad2.dpad_right) {
-            slidesTarget = Constants.MID_POSITION;
-        } else if (gamepad2.dpad_left) {
-            slidesTarget = Constants.LOW_POSITION;
-        } else if (gamepad2.dpad_down) {
-            slidesTarget = Constants.INTAKE_POSITION;
-        }
+//`        if (gamepad2.dpad_up) {
+//            slidesTarget = Constants.HIGH_POSITION + 50;
+//        } else if (gamepad2.dpad_right) {
+//            slidesTarget = Constants.MID_POSITION;
+//        } else if (gamepad2.dpad_left) {
+//            slidesTarget = Constants.LOW_POSITION;
+//        } else if (gamepad2.dpad_down) {
+//            slidesTarget = Constants.INTAKE_POSITION;
+//        }`
         //manual adjustments to slide positions
         slidesTarget += -gamepad2.right_stick_y * 50;
-        slidesTarget = Range.clip(slidesTarget, -250, Constants.SLIDE_MAX);
+        slidesTarget = Range.clip(slidesTarget, -50, Constants.SLIDE_MAX);
         //move the slides
         slides.setTargetPosition(slidesTarget);
         slides.setPower(Constants.SLIDE_POWER);
@@ -221,17 +228,20 @@ public class Iterative_Opmode_V_2 extends OpMode {
 
         //Claw
         if (gamepad2.b) {
-            claw.setPosition(Constants.CLAW_CLOSED);
+            clawPos = Constants.CLAW_CLOSED;
         }
         if (gamepad2.y) {
-            claw.setPosition(Constants.CLAW_OPEN);
+            clawPos = Constants.CLAW_OPEN;
         }
+        clawPos -= 0.01 * gamepad2.left_stick_y;
+        claw.setPosition(clawPos);
+
         //wrist
-        if (gamepad2.dpad_right) {
-            wristPos += 0.01;
-        }
-        if (gamepad2.dpad_left) {
+        if (gamepad2.dpad_up) {
             wristPos -= 0.01;
+        }
+        if (gamepad2.dpad_down) {
+            wristPos += 0.01;
         }
         wristPos = Range.clip(wristPos, 0, 0.75);
         wrist.setPosition(wristPos);
