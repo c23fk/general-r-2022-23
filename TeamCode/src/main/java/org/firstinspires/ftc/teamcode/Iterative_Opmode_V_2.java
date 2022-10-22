@@ -48,6 +48,7 @@ import org.firstinspires.ftc.robotcore.external.Const;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.teamcode.mechanisms.Claw;
 
 /**
  * This file contains an example of an iterative (Non-Linear) "OpMode".
@@ -78,12 +79,10 @@ public class Iterative_Opmode_V_2 extends OpMode {
     private DistanceSensor distRight = null;
     private DistanceSensor distBack = null;
     private BNO055IMU imu = null;
-    private Servo wrist = null;
-    private Servo claw = null;
+    private Claw claw = new Claw();
     private int slidesTarget = Constants.INTAKE_POSITION;
     //public double clawNum = 0.0;
-    private double wristPos = 0.5;
-    private double clawPos = Constants.CLAW_OPEN;
+
 
 
     /*
@@ -137,14 +136,14 @@ public class Iterative_Opmode_V_2 extends OpMode {
         distLeft = hardwareMap.get(DistanceSensor.class, "distLeft");
         distRight = hardwareMap.get(DistanceSensor.class, "distRight");
         distBack = hardwareMap.get(DistanceSensor.class, "distBack");
-        wrist = hardwareMap.get(Servo.class, "wrist");
-        claw = hardwareMap.get(Servo.class, "claw");
+
         //init slides
-        claw.setPosition(Constants.CLAW_OPEN);
         slides.setTargetPosition(slidesTarget);
         slides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         slides.setPower(Constants.SLIDE_POWER);
         // Tell the driver that initialization is complete.
+
+        claw.init(hardwareMap);
         telemetry.addData("Status", "Initialized");
     }
 
@@ -226,41 +225,15 @@ public class Iterative_Opmode_V_2 extends OpMode {
             slides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         }
 
-        //Claw
-        if (gamepad2.b) {
-            clawPos = Constants.CLAW_CLOSED;
-        }
-        if (gamepad2.y) {
-            clawPos = Constants.CLAW_OPEN;
-        }
-        clawPos -= 0.01 * gamepad2.left_stick_y;
-        claw.setPosition(clawPos);
 
-        //wrist
-        if (gamepad2.dpad_up) {
-            wristPos -= 0.01;
-        }
-        if (gamepad2.dpad_down) {
-            wristPos += 0.01;
-        }
-        wristPos = Range.clip(wristPos, 0, 0.75);
-        wrist.setPosition(wristPos);
         //driver zeroing
         if (gamepad1.y) {
             rotateToZero(0);
         }
 
-//        if(gamepad1.right_stick_y > 0.1){
-//            clawNum+=0.01;
-//        }
-//        if(gamepad1.right_stick_y < -0.1){
-//            clawNum-=0.01;
-//        }
-//        claw.setPosition(clawNum);
+        claw.run(gamepad2);
 
-        //telemetry.addData("clawNum: ", clawNum);
-
-        telemetry.addData("wristPos: ", wristPos);
+        telemetry.addData("wristPos: ", claw.getClawPosition());
         telemetry.addData("Slide Position: ", slides.getCurrentPosition());
         telemetry.addData("Distance on the left(cm): ", distLeft.getDistance(DistanceUnit.CM));
         telemetry.addData("Distance on the right(cm): ", distRight.getDistance(DistanceUnit.CM));
