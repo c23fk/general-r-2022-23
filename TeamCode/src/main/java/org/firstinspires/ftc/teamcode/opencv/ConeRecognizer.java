@@ -1,7 +1,6 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.opencv;
 
-
-import androidx.annotation.NonNull;
+//import androidx.annotation.NonNull;
 
 import org.apache.commons.math3.fraction.Fraction;
 import org.opencv.core.*;
@@ -44,6 +43,9 @@ public class ConeRecognizer extends OpenCvPipeline {
     public Point getConeCenter() {
         if(coneOnScreen) return coneCenter;
         else return null;
+    }
+    public ConeRecognizer(){
+        super();
     }
 
     public ConeRecognizer(double fov, double cameraPitchOffset, double cameraYawOffset, double threshold) {
@@ -191,7 +193,7 @@ public class ConeRecognizer extends OpenCvPipeline {
         }
     }
 
-    public Point getCenterofRect(@NonNull Rect rect) {
+    public Point getCenterofRect(/*@NonNull*/ Rect rect) {
         return new Point(rect.x + rect.width / 2.0, rect.y + rect.height / 2.0);
     }
 }

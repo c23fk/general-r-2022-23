@@ -205,13 +205,13 @@ public class Iterative_Opmode_V_2 extends OpMode {
         }
         //slide presets
 //`        if (gamepad2.dpad_up) {
-//            slidesTarget = Constants.HIGH_POSITION + 50;
+//            slidesTarget = CVConstants.HIGH_POSITION + 50;
 //        } else if (gamepad2.dpad_right) {
-//            slidesTarget = Constants.MID_POSITION;
+//            slidesTarget = CVConstants.MID_POSITION;
 //        } else if (gamepad2.dpad_left) {
-//            slidesTarget = Constants.LOW_POSITION;
+//            slidesTarget = CVConstants.LOW_POSITION;
 //        } else if (gamepad2.dpad_down) {
-//            slidesTarget = Constants.INTAKE_POSITION;
+//            slidesTarget = CVConstants.INTAKE_POSITION;
 //        }`
         //manual adjustments to slide positions
         slidesTarget += -gamepad2.right_stick_y * 50;

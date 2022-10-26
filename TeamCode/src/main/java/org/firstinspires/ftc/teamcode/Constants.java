@@ -17,4 +17,5 @@ public class Constants {
     public static final double CLAW_OPEN = 0.55;
     public static final double CLAW_CLOSED = 0.91;
     public static final double CAMERA_POSITION = 0; //set this
+    public static final double MINIMUM_CONTOUR_AREA = 100; //set this
 }

@@ -42,6 +42,13 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.opencv.CVConstants;
+import org.firstinspires.ftc.teamcode.opencv.ColorPipeline;
+import org.firstinspires.ftc.teamcode.opencv.SignalColor;
+import org.openftc.easyopencv.OpenCvCamera;
+import org.openftc.easyopencv.OpenCvCameraFactory;
+import org.openftc.easyopencv.OpenCvCameraRotation;
+import org.openftc.easyopencv.OpenCvWebcam;
 //import org.firstinspires.ftc.teamcode.vision.CubePipeline;
 //import org.firstinspires.ftc.teamcode.vision.ShippingElementPipeline;
 //import org.opencv.core.Point;
@@ -62,7 +69,9 @@ public class RobotHardware {
     private DistanceSensor distRight = null;
     private DistanceSensor distBack = null;
     private BNO055IMU imu = null;
-//    private OpenCvWebcam webcam;
+    private OpenCvWebcam webcam;
+    private ColorPipeline pipeline;
+    private SignalColor color;
     private boolean sensorFail = false;
     /* local OpMode members. */
     HardwareMap hardwareMap = null;
@@ -144,32 +153,36 @@ public class RobotHardware {
         telemetry.addData("Camera status:", "waiting");
         telemetry.update();
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        //webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
-        //shippingPipeline = new ShippingElementPipeline();
-//        webcam.setPipeline(shippingPipeline);
-//        webcam.setMillisecondsPermissionTimeout(2500);
-//        webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
-//            @Override
-//            public void onOpened() {
-//                webcam.startStreaming(Constants.CAM_WIDTH, Constants.CAM_HEIGHT, OpenCvCameraRotation.SIDEWAYS_LEFT);
-//                //telemetry.addData("Camera status:", "initialized");
-//                telemetry.update();
-//            }
-//
-//            @Override
-//            public void onError(int errorCode) {
-//                // This will be called if the camera could not be opened
-//            }
-//        });
-//        while(shippingPipeline.getPoint() == null){
-//            telemetry.addData("camera ready?", "false");
-//            telemetry.addData("pipeline chosen", "Shipping");
-//            telemetry.update();
-//        }
-        //elementPosition = shippingPipeline.getPoint();
+        webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+        pipeline = new ColorPipeline();
+        webcam.setPipeline(pipeline);
+        webcam.setMillisecondsPermissionTimeout(2500);
+        webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
+            @Override
+            public void onOpened() {
+                webcam.startStreaming(Constants.CAM_WIDTH, Constants.CAM_HEIGHT, OpenCvCameraRotation.SIDEWAYS_LEFT);
+                //telemetry.addData("Camera status:", "initialized");
+                telemetry.update();
+            }
+
+            @Override
+            public void onError(int errorCode) {
+                // This will be called if the camera could not be opened
+            }
+        });
+        while(pipeline.getColor() == SignalColor.UNSET){
+            telemetry.addData("camera ready?", "false");
+            telemetry.addData("pipeline chosen:", "colorPipeline");
+            telemetry.update();
+        }
+        color = pipeline.getColor();
         telemetry.addData("camera ready?", "true");
         telemetry.addData("pipeline chosen", "Shipping");
         telemetry.update();
+    }
+
+    public SignalColor getColor(){
+        return color;
     }
 
     public void initSlides() {
