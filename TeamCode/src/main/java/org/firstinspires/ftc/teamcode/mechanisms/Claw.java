@@ -11,6 +11,8 @@ public class Claw implements Mechanism {
     private Servo wrist = null;
     private double clawPos;
     private double wristPos;
+    private boolean clawOpen;
+    private boolean aPressed;
 
     @Override
     public void init(HardwareMap hardwareMap){
@@ -18,16 +20,23 @@ public class Claw implements Mechanism {
         wrist = hardwareMap.get(Servo.class, "wrist");
         clawPos = Constants.CLAW_CLOSED;
         wristPos = 0.5;
+        clawOpen = false;
+        aPressed = false;
         claw.setPosition(clawPos);
         wrist.setPosition(wristPos);
     }
 
     @Override
     public void run(Gamepad gamepad){
-        if (gamepad.a) {
+        aPressed = false;
+        if (gamepad.a & clawOpen & !aPressed) {
             clawPos = Constants.CLAW_CLOSED;
-        } else if (gamepad.b) {
+            clawOpen = false;
+            aPressed = true;
+        } else if (gamepad.a & !clawOpen & !aPressed) {
             clawPos = Constants.CLAW_OPEN;
+            clawOpen = true;
+            aPressed = true;
         }
         clawPos -= 0.01 * gamepad.left_stick_y;
         claw.setPosition(clawPos);
