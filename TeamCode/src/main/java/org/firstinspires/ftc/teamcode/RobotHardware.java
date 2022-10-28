@@ -114,8 +114,8 @@ public class RobotHardware {
         wrist = hardwareMap.get(Servo.class, "wrist");
         claw = hardwareMap.get(Servo.class, "claw");
         //init slides
-        claw.setPosition(Constants.CLAW_OPEN);
-        wrist.setPosition(0.5);
+        claw.setPosition(Constants.CLAW_CLOSED);
+        wrist.setPosition(0.1);
         // Set all motors to zero power
         frontLeft.setPower(0);
         frontRight.setPower(0);
@@ -151,7 +151,7 @@ public class RobotHardware {
         telemetry.addData("Camera status:", "waiting");
         telemetry.update();
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+        webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam"), cameraMonitorViewId);
         pipeline = new ColorPipeline(telemetry);
         webcam.setPipeline(pipeline);
         webcam.setMillisecondsPermissionTimeout(2500);
@@ -180,7 +180,7 @@ public class RobotHardware {
     }
 
     public SignalColor getColor(){
-        return color;
+        return pipeline.getColor();
     }
 
     public void initSlides() {

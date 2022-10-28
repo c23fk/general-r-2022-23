@@ -27,28 +27,30 @@ public class ColorPipeline extends OpenCvPipeline {
 
     @Override
     public Mat processFrame(Mat input) {
+        input = input.submat(300,450,100,300);
 
-        Scalar orangeLower = new Scalar(0,100,100);
-        Scalar orangeUpper = new Scalar(7,255,200);
+        Scalar orangeLower = new Scalar(1,50,50);
+        Scalar orangeUpper = new Scalar(10,255,255);
 
-        Scalar greenLower = new Scalar(50,0,0);
-        Scalar greenUpper = new Scalar(60,255,255);
+        Scalar greenLower = new Scalar(50,50,0);
+        Scalar greenUpper = new Scalar(70,255,255);
 
-        Scalar purpleLower = new Scalar(160,0,0);
-        Scalar purpleUpper = new Scalar(180,255,255);
+        Scalar purpleLower = new Scalar(160,100,100);
+        Scalar purpleUpper = new Scalar(170,255,255);
 
         double orangeArea = findColorContourArea(input, orangeContours, orangeLower, orangeUpper, new Scalar(255, 100, 0));
         double greenArea = findColorContourArea(input, greenContours, greenLower, greenUpper, new Scalar(0, 255, 0));
         double purpleArea = findColorContourArea(input, purpleContours, purpleLower, purpleUpper, new Scalar(255, 0, 255));
-
 
         //pick the color with the largest area
         if(orangeArea > purpleArea && orangeArea > greenArea) {
             color = SignalColor.ORANGE;
         } else if(greenArea > purpleArea) {
             color = SignalColor.GREEN;
-        } else {
+        } else if (purpleArea > 0) {
             color = SignalColor.PURPLE;
+        } else {
+            color = SignalColor.UNSET;
         }
 
         telemetry.addData("Color", color);
@@ -63,8 +65,6 @@ public class ColorPipeline extends OpenCvPipeline {
         Mat workingMat = new Mat();
         //convert to HSV
         Imgproc.cvtColor(input,workingMat,Imgproc.COLOR_RGB2HSV);
-        //blur the mat
-        Imgproc.GaussianBlur(workingMat,workingMat,new Size(5,5),0);
         //filter the mat
         Core.inRange(workingMat,lower,upper,workingMat);
         //morph the mat (remove noise)
@@ -94,7 +94,7 @@ public class ColorPipeline extends OpenCvPipeline {
             Imgproc.drawContours(input,contours,index,color);
             return Imgproc.contourArea(workingContour);
         }catch(Exception ignored){
-            System.out.printf("Orange Contour not found");
+            System.out.println("Orange Contour not found");
             return 0;
         }
 
