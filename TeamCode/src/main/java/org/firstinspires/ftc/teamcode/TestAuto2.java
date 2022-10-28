@@ -81,7 +81,9 @@ public class TestAuto2 extends LinearOpMode {
         telemetryHandler.start();
 
         robot.forwardDrive(0.5);
-        while(robot.getBackDistance()<70&&opModeIsActive()){}
+        while(robot.getBackDistance()<50&&opModeIsActive()){}
+        robot.forwardDrive(0.25);
+        while(robot.getBackDistance()<75&&opModeIsActive()){}
         robot.stopDrive();
         if(parkingLocation == 1) {
             robot.strafeRight(0.5,-900,0.5);
@@ -90,6 +92,7 @@ public class TestAuto2 extends LinearOpMode {
             robot.strafeRight(0.5,900,0.5);
         }
         sleep(1500);
+        robot.setSlidePosition(Constants.INTAKE_POSITION);
         runtime.reset();
     }
 
