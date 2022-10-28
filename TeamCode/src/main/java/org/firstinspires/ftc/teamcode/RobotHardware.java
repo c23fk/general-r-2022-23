@@ -54,7 +54,7 @@ import org.openftc.easyopencv.OpenCvWebcam;
 //import org.openftc.easyopencv.OpenCvCameraFactory;
 //import org.openftc.easyopencv.OpenCvCameraRotation;
 
-public class RobotHardware {
+public class RobotHardware  {
     /* Public OpMode members. */
     public DcMotor frontLeft = null;
     private DcMotor frontRight = null;
@@ -87,6 +87,7 @@ public class RobotHardware {
         hardwareMap = ahwMap;
         this.telemetry = telemetry;
 
+
         // Define and initialize motors
         frontLeft = hardwareMap.get(DcMotor.class, "fl");
         frontRight = hardwareMap.get(DcMotor.class, "fr");
@@ -115,13 +116,14 @@ public class RobotHardware {
         claw = hardwareMap.get(Servo.class, "claw");
         //init slides
         claw.setPosition(Constants.CLAW_CLOSED);
-        wrist.setPosition(0.1);
+        wrist.setPosition(0.2);
         // Set all motors to zero power
         frontLeft.setPower(0);
         frontRight.setPower(0);
         backLeft.setPower(0);
         backRight.setPower(0);
         slides.setPower(0);
+
 
         // Reset all encoders and set the motors to run using the encoders
         slides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -308,6 +310,18 @@ public class RobotHardware {
         backLeft.setPower(power);
         backRight.setPower(power);
     }
+
+    public void strafeLeft(double power) {
+        frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        frontLeft.setPower(power);
+        frontRight.setPower(power);
+        backLeft.setPower(-power);
+        backRight.setPower(-power);
+    }
     public void strafeRight(double power, int position, double timeout) {
         //TIMER :)
         ElapsedTime timer = new ElapsedTime();
@@ -348,6 +362,25 @@ public class RobotHardware {
     public double getAngle(){
         return imu.getAngularOrientation().firstAngle;
     }
+
+    public void openClaw(){
+        claw.setPosition(Constants.CLAW_OPEN);
+    }
+
+    public void closeClaw(){
+        claw.setPosition(Constants.CLAW_CLOSED);
+    }
+
+    public void wristUp(){
+        wrist.setPosition(0.25);
+    }
+
+    public void wristDown(){
+        wrist.setPosition(0.5);
+    }
+
+
+
 
     public void driveByAngleSensor(double angle, DistanceSensor sensor, double toDistance, double timeout){
         ElapsedTime timer = new ElapsedTime();

@@ -10,7 +10,7 @@ public class Constants {
     public static final double STICK_THRESH = 0.1;
     public static final int FULL_SPIN = 1250;
     public static final double SLIDE_POWER = 1;
-    public static final double ROTATION_SENSITIVITY = 0.5;
+    public static final double ROTATION_SENSITIVITY = 0.25;
     public static final int CAM_WIDTH = 640;
     public static final int CAM_HEIGHT = 480;
     public static final double TOLERANCE = Math.PI/32;

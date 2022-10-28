@@ -5,14 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.teamcode.opencv.ColorPipeline;
-import org.firstinspires.ftc.teamcode.opencv.ElementRecognizer;
 import org.firstinspires.ftc.teamcode.opencv.SignalColor;
-import org.openftc.easyopencv.OpenCvCamera;
-import org.openftc.easyopencv.OpenCvCameraFactory;
-import org.openftc.easyopencv.OpenCvCameraRotation;
-import org.openftc.easyopencv.OpenCvWebcam;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -33,6 +26,8 @@ public class TestAuto2 extends LinearOpMode {
         public void run() {
             while (opModeIsActive()) {
                 telemetry.addData("Runtime(s): ", runtime.seconds());
+                telemetry.addData("Left Distance", robot.getLeftDistance());
+                telemetry.addData("Right Distance", robot.getRightDistance());
                 telemetry.addData("Color: ", robot.getColor());
                 telemetry.update();
             }
@@ -43,8 +38,13 @@ public class TestAuto2 extends LinearOpMode {
     @Override
     public void runOpMode() {
         telemetry.addData("Status", "Initializing");
+
         telemetry.update();
         robot.init(hardwareMap, telemetry);
+        robot.wristUp();
+        robot.closeClaw();
+
+
         LinkedList<SignalColor> levels = new LinkedList<>();
         // Make the level the most common one from the past 100 loops
         while (!isStarted() && !isStopRequested()) {
@@ -80,14 +80,50 @@ public class TestAuto2 extends LinearOpMode {
         waitForStart();
         telemetryHandler.start();
 
-        robot.forwardDrive(0.5);
-        while(robot.getBackDistance()<70&&opModeIsActive()){}
+
+        robot.wristUp();
+        robot.closeClaw();
+
+
+        robot.forwardDrive(0.1);
+        while(robot.getBackDistance()<75&&opModeIsActive()){}
         robot.stopDrive();
+        robot.closeClaw();
+
+        robot.rotateLeft(0.2, 180, 10);
+
+//        robot.strafeRight(-0.1);
+//        while(robot.getRightDistance()<73&&opModeIsActive()){}
+//        robot.stopDrive();
+//
+//        robot.strafeRight(0.1);
+//        while(robot.getRightDistance()>73&&opModeIsActive()){}
+//        robot.stopDrive();
+
+        robot.setSlidePosition(3400);
+        sleep(2000);
+        telemetry.addData("Left Distance", robot.getLeftDistance());
+//        robot.strafeLeft(0.1);
+//        while(robot.getLeftDistance() < 70 &&opModeIsActive()){}
+        robot.stopDrive();
+
+        robot.forwardDrive(0.1);
+        while(robot.getBackDistance()<66&&opModeIsActive()){}
+        robot.stopDrive();
+
+
+        sleep(2500);
+        robot.wristDown();
+        sleep(1000);
+        robot.openClaw();
+        sleep(1500);
+        robot.closeClaw();
+
         if(parkingLocation == 1) {
-            robot.strafeRight(0.5,-900,0.5);
+            robot.strafeRight(0.1,-900,0.5);
         }
         if(parkingLocation == 3) {
-            robot.strafeRight(0.5,900,0.5);
+            robot.strafeRight(0.1,900,0.5);
         }
         sleep(1500);
         runtime.reset();
