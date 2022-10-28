@@ -183,7 +183,7 @@ public class Iterative_Opmode_V_2 extends OpMode {
             rotatedY = (stickY * Math.cos(PI / 4)) + (stickX * Math.sin(PI / 4));
         }
         //determine how much the robot should turn
-        double rotation = Math.pow(gamepad1.left_trigger, 2) * Constants.ROTATION_SENSITIVITY - Math.pow(gamepad1.right_trigger, 2) * Constants.ROTATION_SENSITIVITY;
+        double rotation = gamepad1.left_trigger * Constants.ROTATION_SENSITIVITY - gamepad1.right_trigger * Constants.ROTATION_SENSITIVITY;
         //test if the robot should move
         boolean areTriggersDown = Math.abs(rotation) > Constants.STICK_THRESH;
         boolean areSticksMoved = Math.sqrt((rotatedX * rotatedX) + (rotatedY * rotatedY)) > Constants.STICK_THRESH;
@@ -214,7 +214,7 @@ public class Iterative_Opmode_V_2 extends OpMode {
 //            slidesTarget = CVConstants.INTAKE_POSITION;
 //        }`
         //manual adjustments to slide positions
-        slidesTarget += -Math.pow(gamepad2.right_stick_y, 2) * 50;
+        slidesTarget += -gamepad2.right_stick_y * 50;
         slidesTarget = Range.clip(slidesTarget, -50, Constants.SLIDE_MAX);
         //move the slides
         slides.setTargetPosition(slidesTarget);
