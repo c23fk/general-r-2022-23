@@ -76,10 +76,9 @@ public class Iterative_Opmode_V_2 extends OpMode {
     private DistanceSensor distLeft = null;
     private DistanceSensor distRight = null;
     private DistanceSensor distBack = null;
-    private BNO055IMU imu = null;
     private Claw claw = new Claw();
     private Chasis chasis = new Chasis();
-    private int slidesTarget = Constants.INTAKE_POSITION;
+    private int slidesTarget = 0;
     //public double clawNum = 0.0;
 
 
@@ -97,11 +96,8 @@ public class Iterative_Opmode_V_2 extends OpMode {
 
         // Reverse the motor that runs backwards when connected directly to the battery
         slides.setDirection(DcMotorSimple.Direction.FORWARD);
-
         //set zero behaviors
-
         slides.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
         //reset encoders for all the motors
         slides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
@@ -144,15 +140,15 @@ public class Iterative_Opmode_V_2 extends OpMode {
     public void loop() {
 
         //slide presets
-//`        if (gamepad2.dpad_up) {
-//            slidesTarget = CVConstants.HIGH_POSITION + 50;
-//        } else if (gamepad2.dpad_right) {
-//            slidesTarget = CVConstants.MID_POSITION;
-//        } else if (gamepad2.dpad_left) {
-//            slidesTarget = CVConstants.LOW_POSITION;
-//        } else if (gamepad2.dpad_down) {
-//            slidesTarget = CVConstants.INTAKE_POSITION;
-//        }`
+        if (gamepad2.dpad_up) {
+            slidesTarget = Constants.SLIDE_MAX;
+        } else if (gamepad2.dpad_right) {
+            slidesTarget = Constants.MID_POSITION;
+        } else if (gamepad2.dpad_left) {
+            slidesTarget = Constants.LOW_POSITION;
+        } else if (gamepad2.dpad_down) {
+            slidesTarget = 0;
+        }
         //manual adjustments to slide positions
         slidesTarget += -gamepad2.right_stick_y * 50;
         slidesTarget = Range.clip(slidesTarget, -50, Constants.SLIDE_MAX);
@@ -177,7 +173,7 @@ public class Iterative_Opmode_V_2 extends OpMode {
         telemetry.addData("FR: ", chasis.getFrontRightPosition());
         telemetry.addData("BL: ", chasis.getBackLeftPosition());
         telemetry.addData("BR: ", chasis.getBackRightPosition());
-        telemetry.addData("Angle: ", imu.getAngularOrientation().firstAngle);
+        telemetry.addData("Angle: ", chasis.getAngle());
     }
 
 

@@ -22,10 +22,10 @@ public class Chasis implements Mechanism{
 
     @Override
     public void init(HardwareMap hardwareMap) {
-        frontLeft = hardwareMap.get(DcMotor.class, "leftFront");
-        frontRight = hardwareMap.get(DcMotor.class, "rightFront");
-        backLeft = hardwareMap.get(DcMotor.class, "leftBack");
-        backRight = hardwareMap.get(DcMotor.class, "rightBack");
+        frontLeft = hardwareMap.get(DcMotor.class, "fl");
+        frontRight = hardwareMap.get(DcMotor.class, "fr");
+        backLeft = hardwareMap.get(DcMotor.class, "bl");
+        backRight = hardwareMap.get(DcMotor.class, "br");
         //imu
         imu = hardwareMap.get(BNO055IMU.class, "imu 1");
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
@@ -135,6 +135,9 @@ public class Chasis implements Mechanism{
         }
 
         stopDrive();
+    }
+    public double getAngle(){
+        return imu.getAngularOrientation().firstAngle;
     }
 
     public double getFrontLeftPosition() {
