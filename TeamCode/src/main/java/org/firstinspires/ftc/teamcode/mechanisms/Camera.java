@@ -33,7 +33,7 @@ public class Camera implements Mechanism{
     @Override
     public void init(HardwareMap hardwareMap) {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam"), cameraMonitorViewId);
+        webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
         pipeline = new ColorPipeline(telemetry);
         webcam.setPipeline(pipeline);
         webcam.setMillisecondsPermissionTimeout(2500);
@@ -47,12 +47,14 @@ public class Camera implements Mechanism{
 
             @Override
             public void onError(int errorCode) {
+                telemetry.addData("Camera status:", "error");
                 // This will be called if the camera could not be opened
             }
         });
-        while(pipeline.getColor() == SignalColor.UNSET){
+        double startTime = System.currentTimeMillis();
+        while(pipeline.getColor() == SignalColor.UNSET && System.currentTimeMillis() - startTime < 2500){
             telemetry.addData("camera ready?", initialized);
-            telemetry.update();
+            telemetry.update(); // Update telemetry
         }
         initialized = true;
         telemetry.addData("camera ready?", initialized);
@@ -98,6 +100,7 @@ public class Camera implements Mechanism{
             if (max == null || e.getValue() > max.getValue())
                 max = e;
         }
+        assert max != null;
         return max.getKey();
     }
 
