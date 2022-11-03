@@ -59,13 +59,13 @@ public class RightBlueAuto extends LinearOpMode {
                 break;
         }
         telemetryHandler.start();
-        robot.forwardDrive(0.75,925,2);
+        robot.forwardDrive(0.75,875,2);
         robot.setSlidePosition(Constants.MID_POSITION);
         robot.rotateToZero(0,1);
-        robot.strafeRight(-0.15);
+        robot.strafeRight(-0.1);
         while(robot.getBackDistance()>30&&opModeIsActive()){}
         robot.stopDrive();
-        robot.strafeRight(0.15,-100,1);
+        robot.strafeRight(0.3, -50, 1);
         sleep(1500);
         robot.setWristPosition(Constants.WRIST_DOWN);
         sleep(1000);
@@ -75,7 +75,7 @@ public class RightBlueAuto extends LinearOpMode {
         robot.setSlidePosition(0);
         sleep(1000);
         robot.strafeRight(0.5,350,1);
-        robot.strafeRight(0.5,parkingLocation*1000,3);
+        robot.strafeRight(0.5,(parkingLocation*1000)+200,3);
         sleep(1000);
         robot.rotateToZero(0,1);
         runtime.reset();
