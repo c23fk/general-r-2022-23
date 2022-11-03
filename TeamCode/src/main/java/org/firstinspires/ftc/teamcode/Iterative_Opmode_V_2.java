@@ -48,6 +48,7 @@ import org.firstinspires.ftc.robotcore.external.Const;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.teamcode.mechanisms.Chasis;
 import org.firstinspires.ftc.teamcode.mechanisms.Claw;
 
 /**
@@ -70,17 +71,14 @@ public class Iterative_Opmode_V_2 extends OpMode {
     // Declare OpMode members.
     private final ElapsedTime runtime = new ElapsedTime();
 
-    private DcMotor frontLeft = null;
-    private DcMotor frontRight = null;
-    private DcMotor backLeft = null;
-    private DcMotor backRight = null;
+
     private DcMotor slides = null;
     private DistanceSensor distLeft = null;
     private DistanceSensor distRight = null;
     private DistanceSensor distBack = null;
-    private BNO055IMU imu = null;
     private Claw claw = new Claw();
-    private int slidesTarget = Constants.INTAKE_POSITION;
+    private Chasis chasis = new Chasis();
+    private int slidesTarget = 0;
     //public double clawNum = 0.0;
 
 
@@ -94,43 +92,15 @@ public class Iterative_Opmode_V_2 extends OpMode {
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names assigned during the robot configuration
         // step (using the FTC Robot Controller app on the phone).
-        frontLeft = hardwareMap.get(DcMotor.class, "fl");
-        frontRight = hardwareMap.get(DcMotor.class, "fr");
-        backRight = hardwareMap.get(DcMotor.class, "br");
-        backLeft = hardwareMap.get(DcMotor.class, "bl");
         slides = hardwareMap.get(DcMotor.class, "slides");
-        //initialize the imu
-        imu = hardwareMap.get(BNO055IMU.class, "imu 1");
-        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-        parameters.mode = BNO055IMU.SensorMode.IMU;
-        parameters.angleUnit = BNO055IMU.AngleUnit.RADIANS;
-        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        parameters.loggingEnabled = false;
-        imu.initialize(parameters);
+
         // Reverse the motor that runs backwards when connected directly to the battery
-        frontLeft.setDirection(DcMotor.Direction.FORWARD);
-        frontRight.setDirection(DcMotor.Direction.FORWARD);
-        backLeft.setDirection(DcMotor.Direction.FORWARD);
-        backRight.setDirection(DcMotor.Direction.FORWARD);
         slides.setDirection(DcMotorSimple.Direction.FORWARD);
-
         //set zero behaviors
-        frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         slides.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
         //reset encoders for all the motors
         slides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
 
         //initialize distance sensors
         distLeft = hardwareMap.get(DistanceSensor.class, "distLeft");
@@ -144,6 +114,7 @@ public class Iterative_Opmode_V_2 extends OpMode {
         // Tell the driver that initialization is complete.
 
         claw.init(hardwareMap);
+        chasis.init(hardwareMap);
         telemetry.addData("Status", "Initialized");
     }
 
@@ -167,52 +138,17 @@ public class Iterative_Opmode_V_2 extends OpMode {
      */
     @Override
     public void loop() {
-        //Get the positions of the left stick in terms of x and y
-        //Invert y because of the input from the controller
-        double stickX = Math.abs(gamepad1.left_stick_x) < Constants.STICK_THRESH ? 0 : gamepad1.left_stick_x;
-        double stickY = Math.abs(gamepad1.left_stick_y) < Constants.STICK_THRESH ? 0 : -gamepad1.left_stick_y;
-        //get the direction from the IMU
-        double angle = imu.getAngularOrientation().firstAngle;
-        //rotate the positions to prep for wheel powers
-        double rotatedX = (stickX * Math.cos(PI / 4 - angle)) - (stickY * Math.sin(PI / 4 - angle));
-        double rotatedY = (stickY * Math.cos(PI / 4 - angle)) + (stickX * Math.sin(PI / 4 - angle));
-        if(rotatedX == 0 && rotatedY == 0){
-            stickX = Math.abs(gamepad1.right_stick_x) < Constants.STICK_THRESH ? 0 : gamepad1.right_stick_x;
-            stickY = Math.abs(gamepad1.right_stick_y) < Constants.STICK_THRESH ? 0 : -gamepad1.right_stick_y;
-            rotatedX = (stickX * Math.cos(PI / 4)) - (stickY * Math.sin(PI / 4));
-            rotatedY = (stickY * Math.cos(PI / 4)) + (stickX * Math.sin(PI / 4));
-        }
-        //determine how much the robot should turn
-        double rotation = gamepad1.left_trigger * Constants.ROTATION_SENSITIVITY - gamepad1.right_trigger * Constants.ROTATION_SENSITIVITY;
-        //test if the robot should move
-        boolean areTriggersDown = Math.abs(rotation) > Constants.STICK_THRESH;
-        boolean areSticksMoved = Math.sqrt((rotatedX * rotatedX) + (rotatedY * rotatedY)) > Constants.STICK_THRESH;
-        if (areSticksMoved || areTriggersDown) {
-            //add the rotation to the powers of the wheels
-            double flPower = -rotatedY + rotation;
-            double brPower = rotatedY + rotation;
-            double frPower = -rotatedX + rotation;
-            double blPower = rotatedX + rotation;
-            //keep the powers proportional and within a range of -1 to 1
-            double motorMax = Math.max(Math.max(Math.abs(flPower), Math.abs(brPower)), Math.max(Math.abs(frPower), Math.abs(blPower)));
-            double proportion = Math.max(1, motorMax);
-            frontLeft.setPower(flPower / proportion);
-            backRight.setPower(brPower / proportion);
-            frontRight.setPower(frPower / proportion);
-            backLeft.setPower(blPower / proportion);
-        } else {
-            stopDrive();
-        }
+
         //slide presets
-//`        if (gamepad2.dpad_up) {
-//            slidesTarget = CVConstants.HIGH_POSITION + 50;
-//        } else if (gamepad2.dpad_right) {
-//            slidesTarget = CVConstants.MID_POSITION;
-//        } else if (gamepad2.dpad_left) {
-//            slidesTarget = CVConstants.LOW_POSITION;
-//        } else if (gamepad2.dpad_down) {
-//            slidesTarget = CVConstants.INTAKE_POSITION;
-//        }`
+        if (gamepad2.dpad_up) {
+            slidesTarget = Constants.SLIDE_MAX;
+        } else if (gamepad2.dpad_right) {
+            slidesTarget = Constants.MID_POSITION;
+        } else if (gamepad2.dpad_left) {
+            slidesTarget = Constants.LOW_POSITION;
+        } else if (gamepad2.dpad_down) {
+            slidesTarget = 0;
+        }
         //manual adjustments to slide positions
         slidesTarget += -gamepad2.right_stick_y * 50;
         slidesTarget = Range.clip(slidesTarget, -50, Constants.SLIDE_MAX);
@@ -225,70 +161,22 @@ public class Iterative_Opmode_V_2 extends OpMode {
             slides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         }
 
-
-        //driver zeroing
-        if (gamepad1.y) {
-            rotateToZero(0);
-        }
-
         claw.run(gamepad2);
+        chasis.run(gamepad1);
 
         telemetry.addData("wristPos: ", claw.getClawPosition());
         telemetry.addData("Slide Position: ", slides.getCurrentPosition());
         telemetry.addData("Distance on the left(cm): ", distLeft.getDistance(DistanceUnit.CM));
         telemetry.addData("Distance on the right(cm): ", distRight.getDistance(DistanceUnit.CM));
         telemetry.addData("Distance on the back(cm): ", distBack.getDistance(DistanceUnit.CM));
-        telemetry.addData("FL: ", frontLeft.getCurrentPosition());
-        telemetry.addData("FR: ", frontRight.getCurrentPosition());
-        telemetry.addData("BL: ", backLeft.getCurrentPosition());
-        telemetry.addData("BR: ", backRight.getCurrentPosition());
-        telemetry.addData("Angle: ", imu.getAngularOrientation().firstAngle);
-    }
-
-    private void stopDrive() {
-        frontLeft.setPower(0);
-        frontRight.setPower(0);
-        backLeft.setPower(0);
-        backRight.setPower(0);
+        telemetry.addData("FL: ", chasis.getFrontLeftPosition());
+        telemetry.addData("FR: ", chasis.getFrontRightPosition());
+        telemetry.addData("BL: ", chasis.getBackLeftPosition());
+        telemetry.addData("BR: ", chasis.getBackRightPosition());
+        telemetry.addData("Angle: ", chasis.getAngle());
     }
 
 
-    private void rotateToZero(double angle) {
-        //use a PID control loop to zero
-        ElapsedTime timer = new ElapsedTime();
-        timer.reset();
-        double k_p = Math.PI/8;
-        double k_i = 0;
-        double k_d = 2;
-        double current_error = imu.getAngularOrientation().firstAngle - angle;
-        double previous_error = current_error;
-        double previous_time = 0;
-        double current_time = 0;
-        double max_i = 0.1;
-        //while(timer.seconds() < 5){
-        while (Math.abs(imu.getAngularOrientation().firstAngle - angle) > Constants.TOLERANCE) {
-            current_time = runtime.milliseconds();
-            current_error = angle - imu.getAngularOrientation().firstAngle;
-            double p = k_p * current_error;
-            double i = k_i * (current_error * (current_time - previous_time));
-            i = Range.clip(i, -max_i, max_i);
-            double d = k_d * ((current_error - previous_error) / (current_time - previous_time));
-            double power = p + i + d;
-            frontLeft.setPower(power);
-            frontRight.setPower(power);
-            backLeft.setPower(power);
-            backRight.setPower(power);
-
-            previous_error = current_error;
-            previous_time = current_time;
-
-            telemetry.addData("status:", "zeroing direction");
-            telemetry.addData("time(ms):", timer.milliseconds());
-            telemetry.update();
-        }
-
-        stopDrive();
-    }
 
     /*
      * Code to run ONCE after the driver hits STOP

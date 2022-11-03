@@ -11,40 +11,34 @@ public class Claw implements Mechanism {
     private Servo wrist = null;
     private double clawPos;
     private double wristPos;
-    private boolean clawOpen;
-    private boolean aPressed;
 
     @Override
     public void init(HardwareMap hardwareMap){
         claw = hardwareMap.get(Servo.class, "claw");
         wrist = hardwareMap.get(Servo.class, "wrist");
-        clawPos = Constants.CLAW_OPEN;
-        wristPos = 0.1;
-        clawOpen = true;
-        aPressed = false;
+        clawPos = Constants.CLAW_CLOSED;
+        wristPos = 0.5;
         claw.setPosition(clawPos);
         wrist.setPosition(wristPos);
     }
 
     @Override
     public void run(Gamepad gamepad){
-        if(gamepad.a){
-            if(!aPressed){
-                clawOpen = !clawOpen;
-                aPressed = true;
-                clawPos = clawOpen?Constants.CLAW_OPEN: Constants.CLAW_CLOSED;
-            }
-        }else{
-            aPressed = false;
+        if (gamepad.a) {
+            clawPos = Constants.CLAW_CLOSED;
+        } else if (gamepad.b) {
+            clawPos = Constants.CLAW_OPEN;
+        }
+        if(gamepad.dpad_up){
+            wristPos = Constants.WRIST_UP+0.1;
+        }
+        if(gamepad.dpad_down){
+            wristPos = Constants.WRIST_DOWN;
         }
         clawPos -= 0.01 * gamepad.left_stick_y;
         claw.setPosition(clawPos);
 
-        if (gamepad.dpad_down) {
-            wristPos += 0.01;
-        } else if (gamepad.dpad_up) {
-            wristPos -= 0.01;
-        }
+        wristPos += 0.01 * (gamepad.right_trigger-gamepad.left_trigger);
 
         claw.setPosition(clawPos);
         wrist.setPosition(wristPos);
@@ -54,10 +48,7 @@ public class Claw implements Mechanism {
         return clawPos;
     }
 
-
     public double getWristPosition() {
         return wristPos;
     }
-
-
 }

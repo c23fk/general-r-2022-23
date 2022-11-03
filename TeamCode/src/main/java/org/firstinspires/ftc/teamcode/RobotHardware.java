@@ -41,6 +41,7 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.mechanisms.Camera;
 import org.firstinspires.ftc.teamcode.opencv.ColorPipeline;
 import org.firstinspires.ftc.teamcode.opencv.SignalColor;
 import org.openftc.easyopencv.OpenCvCamera;
@@ -54,7 +55,7 @@ import org.openftc.easyopencv.OpenCvWebcam;
 //import org.openftc.easyopencv.OpenCvCameraFactory;
 //import org.openftc.easyopencv.OpenCvCameraRotation;
 
-public class RobotHardware  {
+public class RobotHardware {
     /* Public OpMode members. */
     public DcMotor frontLeft = null;
     private DcMotor frontRight = null;
@@ -67,9 +68,7 @@ public class RobotHardware  {
     private DistanceSensor distRight = null;
     private DistanceSensor distBack = null;
     private BNO055IMU imu = null;
-    private OpenCvWebcam webcam;
-    private ColorPipeline pipeline;
-    private SignalColor color;
+
     private boolean sensorFail = false;
     /* local OpMode members. */
     HardwareMap hardwareMap = null;
@@ -86,7 +85,6 @@ public class RobotHardware  {
         // Save reference to Hardware map
         hardwareMap = ahwMap;
         this.telemetry = telemetry;
-
 
         // Define and initialize motors
         frontLeft = hardwareMap.get(DcMotor.class, "fl");
@@ -116,14 +114,13 @@ public class RobotHardware  {
         claw = hardwareMap.get(Servo.class, "claw");
         //init slides
         claw.setPosition(Constants.CLAW_CLOSED);
-        wrist.setPosition(0.2);
+        wrist.setPosition(Constants.WRIST_UP);
         // Set all motors to zero power
         frontLeft.setPower(0);
         frontRight.setPower(0);
         backLeft.setPower(0);
         backRight.setPower(0);
         slides.setPower(0);
-
 
         // Reset all encoders and set the motors to run using the encoders
         slides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -152,42 +149,12 @@ public class RobotHardware  {
         //initialize the camera
         telemetry.addData("Camera status:", "waiting");
         telemetry.update();
-        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam"), cameraMonitorViewId);
-        pipeline = new ColorPipeline(telemetry);
-        webcam.setPipeline(pipeline);
-        webcam.setMillisecondsPermissionTimeout(2500);
-        webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
-            @Override
-            public void onOpened() {
-                webcam.startStreaming(Constants.CAM_WIDTH, Constants.CAM_HEIGHT, OpenCvCameraRotation.SIDEWAYS_LEFT);
-                //telemetry.addData("Camera status:", "initialized");
-                telemetry.update();
-            }
-
-            @Override
-            public void onError(int errorCode) {
-                // This will be called if the camera could not be opened
-            }
-        });
-        while(pipeline.getColor() == SignalColor.UNSET){
-            telemetry.addData("camera ready?", "false");
-            telemetry.addData("pipeline chosen:", "colorPipeline");
-            telemetry.update();
-        }
-        color = pipeline.getColor();
-        telemetry.addData("camera ready?", "true");
-        telemetry.addData("pipeline chosen", "Shipping");
-        telemetry.update();
     }
 
-    public SignalColor getColor(){
-        return pipeline.getColor();
-    }
 
     public void initSlides() {
         slides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        slides.setTargetPosition(Constants.INTAKE_POSITION);
+        slides.setTargetPosition(0);
         slides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         slides.setPower(Constants.SLIDE_POWER);
     }
@@ -206,6 +173,14 @@ public class RobotHardware  {
 
     public double getBackDistance() {
         return distBack.getDistance(DistanceUnit.CM);
+    }
+
+    public void setClawPosition(double pos){
+        claw.setPosition(pos);
+    }
+
+    public void setWristPosition(double pos){
+        wrist.setPosition(pos);
     }
 
     //rotation
@@ -310,18 +285,6 @@ public class RobotHardware  {
         backLeft.setPower(power);
         backRight.setPower(power);
     }
-
-    public void strafeLeft(double power) {
-        frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        frontLeft.setPower(power);
-        frontRight.setPower(power);
-        backLeft.setPower(-power);
-        backRight.setPower(-power);
-    }
     public void strafeRight(double power, int position, double timeout) {
         //TIMER :)
         ElapsedTime timer = new ElapsedTime();
@@ -362,25 +325,6 @@ public class RobotHardware  {
     public double getAngle(){
         return imu.getAngularOrientation().firstAngle;
     }
-
-    public void openClaw(){
-        claw.setPosition(Constants.CLAW_OPEN);
-    }
-
-    public void closeClaw(){
-        claw.setPosition(Constants.CLAW_CLOSED);
-    }
-
-    public void wristUp(){
-        wrist.setPosition(0.25);
-    }
-
-    public void wristDown(){
-        wrist.setPosition(0.5);
-    }
-
-
-
 
     public void driveByAngleSensor(double angle, DistanceSensor sensor, double toDistance, double timeout){
         ElapsedTime timer = new ElapsedTime();
@@ -568,6 +512,38 @@ public class RobotHardware  {
         }
         //end the path
         //stopDrive();
+
+    }
+    public void rotateToZero(double angle, double timeout) {
+        //use a PID control loop to zero
+        ElapsedTime timer = new ElapsedTime();
+        timer.reset();
+        double k_p = Math.PI/8;
+        double k_i = 0;
+        double k_d = 2;
+        double current_error = imu.getAngularOrientation().firstAngle - angle;
+        double previous_error = current_error;
+        double previous_time = 0;
+        double current_time = 0;
+        double max_i = 0.1;
+        //while(timer.seconds() < 5){
+        while (Math.abs(imu.getAngularOrientation().firstAngle - angle) > Constants.TOLERANCE && timer.seconds() < timeout) {
+            current_time = timer.milliseconds();
+            current_error = angle - imu.getAngularOrientation().firstAngle;
+            double p = k_p * current_error;
+            double i = k_i * (current_error * (current_time - previous_time));
+            i = Range.clip(i, -max_i, max_i);
+            double d = k_d * ((current_error - previous_error) / (current_time - previous_time));
+            double power = p + i + d;
+            frontLeft.setPower(power);
+            frontRight.setPower(power);
+            backLeft.setPower(power);
+            backRight.setPower(power);
+            previous_error = current_error;
+            previous_time = current_time;
+        }
+
+        stopDrive();
     }
 
 }
