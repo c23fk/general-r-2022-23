@@ -73,10 +73,10 @@ public class Chasis implements Mechanism{
             rotatedY = (stickY * Math.cos(PI / 4)) + (stickX * Math.sin(PI / 4));
         }
         //determine how much the robot should turn
-        double rotation = gamepad.left_trigger * Constants.ROTATION_SENSITIVITY - gamepad.right_trigger * Constants.ROTATION_SENSITIVITY;
+        double rotation = ((gamepad.left_bumper?1:0) - (gamepad.right_bumper?1:0))*0.1 + (gamepad.left_trigger * Constants.ROTATION_SENSITIVITY - gamepad.right_trigger * Constants.ROTATION_SENSITIVITY);
         //test if the robot should move
-        boolean areTriggersDown = Math.abs(rotation) > Constants.STICK_THRESH;
-        boolean areSticksMoved = Math.sqrt((rotatedX * rotatedX) + (rotatedY * rotatedY)) > Constants.STICK_THRESH;
+        boolean areTriggersDown = Math.abs(rotation) > 0;
+        boolean areSticksMoved = Math.sqrt((rotatedX * rotatedX) + (rotatedY * rotatedY)) > 0;
         if (areSticksMoved || areTriggersDown) {
             //add the rotation to the powers of the wheels
             double flPower = -rotatedY + rotation;
@@ -93,8 +93,17 @@ public class Chasis implements Mechanism{
         } else {
             stopDrive();
         }
-        if (gamepad.y) {
+        if (gamepad.dpad_up) {
             rotateToZero(0);
+        }
+        if (gamepad.dpad_left) {
+            rotateToZero(PI/2);
+        }
+        if (gamepad.dpad_down) {
+            rotateToZero(PI);
+        }
+        if (gamepad.dpad_right) {
+            rotateToZero(-PI/2);
         }
     }
 
