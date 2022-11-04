@@ -11,14 +11,14 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.Constants;
 
-public class Chasis implements Mechanism{
+public class Chasis2 implements Mechanism{
     private DcMotor frontLeft = null;
     private DcMotor frontRight = null;
     private DcMotor backLeft = null;
     private DcMotor backRight = null;
     private BNO055IMU imu = null;
 
-    public Chasis() {}
+    public Chasis2() {}
 
     @Override
     public void init(HardwareMap hardwareMap) {
@@ -64,34 +64,29 @@ public class Chasis implements Mechanism{
         //get the direction from the IMU
         double angle = imu.getAngularOrientation().firstAngle;
         //rotate the positions to prep for wheel powers
-        double rotatedX = (stickX * Math.cos(PI / 4 - angle)) - (stickY * Math.sin(PI / 4 - angle));
-        double rotatedY = (stickY * Math.cos(PI / 4 - angle)) + (stickX * Math.sin(PI / 4 - angle));
-        if(rotatedX == 0 && rotatedY == 0){
-            stickX = Math.abs(gamepad.right_stick_x) < Constants.STICK_THRESH ? 0 : gamepad.right_stick_x;
-            stickY = Math.abs(gamepad.right_stick_y) < Constants.STICK_THRESH ? 0 : -gamepad.right_stick_y;
-            rotatedX = (stickX * Math.cos(PI / 4)) - (stickY * Math.sin(PI / 4));
-            rotatedY = (stickY * Math.cos(PI / 4)) + (stickX * Math.sin(PI / 4));
-        }
+        double rotatedX = (stickX * Math.cos(PI / 4)) - (stickY * Math.sin(PI / 4));
+        double rotatedY = (stickY * Math.cos(PI / 4)) + (stickX * Math.sin(PI / 4));
         //determine how much the robot should turn
-        double rotation = ((gamepad.left_bumper?1:0) - (gamepad.right_bumper?1:0))*0.1 + (gamepad.left_trigger * Constants.ROTATION_SENSITIVITY - gamepad.right_trigger * Constants.ROTATION_SENSITIVITY);
+        double rotation = (gamepad.left_trigger - gamepad.right_trigger) * Constants.ROTATION_SENSITIVITY + (-gamepad.right_stick_x * 0.5);
         //test if the robot should move
+        double stickPower = Math.sqrt(rotatedX * rotatedX + rotatedY * rotatedY);
         boolean areTriggersDown = Math.abs(rotation) > 0;
-        boolean areSticksMoved = Math.sqrt((rotatedX * rotatedX) + (rotatedY * rotatedY)) > 0;
+        boolean areSticksMoved = stickPower > 0;
         if (areSticksMoved || areTriggersDown) {
             //add the rotation to the powers of the wheels
-            double motorMax = Math.max(Math.abs(rotatedX), Math.abs(rotatedY));
+            double motorMax = Math.max(Math.abs(rotatedX)+rotation, Math.abs(rotatedY)+rotation);
             double proportion = Math.max(1, motorMax);
-
-            double flPower = -rotatedY/proportion + rotation;
-            double brPower = rotatedY/proportion + rotation;
-            double frPower = -rotatedX/proportion + rotation;
-            double blPower = rotatedX/proportion + rotation;
+            double num = (1 / proportion)* stickPower;
+            double flPower = num * -rotatedY + rotation;
+            double brPower = num * rotatedY/proportion + rotation;
+            double frPower = num * -rotatedX/proportion + rotation;
+            double blPower = num * rotatedX/proportion + rotation;
             //keep the powers proportional and within a range of -1 to 1
-            double num = 0.8;
-            frontLeft.setPower(num * flPower / proportion);
-            backRight.setPower(num * brPower / proportion);
-            frontRight.setPower(num * frPower / proportion);
-            backLeft.setPower(num * blPower / proportion);
+
+            frontLeft.setPower(flPower / proportion);
+            backRight.setPower(brPower / proportion);
+            frontRight.setPower(frPower / proportion);
+            backLeft.setPower(blPower / proportion);
         } else {
             stopDrive();
         }

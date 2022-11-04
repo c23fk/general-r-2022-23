@@ -29,26 +29,18 @@
 
 package org.firstinspires.ftc.teamcode;
 
-import static java.lang.Math.PI;
 
-import android.graphics.Camera;
-
-import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.robotcore.external.Const;
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.teamcode.mechanisms.Chasis;
+import org.firstinspires.ftc.teamcode.mechanisms.Chasis2;
 import org.firstinspires.ftc.teamcode.mechanisms.Claw;
 
 /**
@@ -66,22 +58,17 @@ import org.firstinspires.ftc.teamcode.mechanisms.Claw;
  */
 
 @TeleOp(name = "Layer Cake", group = "Iterative Opmode")
-
 public class Iterative_Opmode_V_2 extends OpMode {
     // Declare OpMode members.
     private final ElapsedTime runtime = new ElapsedTime();
-
-
     private DcMotor slides = null;
     private DistanceSensor distLeft = null;
     private DistanceSensor distRight = null;
     private DistanceSensor distBack = null;
     private Claw claw = new Claw();
-    private Chasis chasis = new Chasis();
+    private Chasis2 chasis = new Chasis2();
+    //private Chasis chasis = new Chasis();
     private int slidesTarget = 0;
-    //public double clawNum = 0.0;
-
-
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -93,15 +80,12 @@ public class Iterative_Opmode_V_2 extends OpMode {
         // to 'get' must correspond to the names assigned during the robot configuration
         // step (using the FTC Robot Controller app on the phone).
         slides = hardwareMap.get(DcMotor.class, "slides");
-
         // Reverse the motor that runs backwards when connected directly to the battery
         slides.setDirection(DcMotorSimple.Direction.FORWARD);
         //set zero behaviors
         slides.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         //reset encoders for all the motors
         slides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-
         //initialize distance sensors
         distLeft = hardwareMap.get(DistanceSensor.class, "distLeft");
         distRight = hardwareMap.get(DistanceSensor.class, "distRight");

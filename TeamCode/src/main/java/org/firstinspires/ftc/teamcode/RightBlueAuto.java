@@ -65,7 +65,6 @@ public class RightBlueAuto extends LinearOpMode {
         robot.strafeRight(-0.1);
         while(robot.getBackDistance()>30&&opModeIsActive()){}
         robot.stopDrive();
-        robot.strafeRight(0.3, -50, 1);
         sleep(1500);
         robot.setWristPosition(Constants.WRIST_DOWN);
         sleep(1000);
