@@ -35,10 +35,16 @@ public class Claw implements Mechanism {
         if(gamepad.dpad_down){
             wristPos = Constants.WRIST_DOWN;
         }
+
+        if (gamepad.left_bumper) {
+            wristPos = Constants.WRIST_UP + 0.1;
+        } else if (gamepad.right_bumper) {
+            wristPos = Constants.WRIST_DOWN;
+        }
         clawPos -= 0.01 * gamepad.left_stick_y;
         claw.setPosition(clawPos);
 
-        wristPos += 0.01 * (gamepad.right_trigger-gamepad.left_trigger);
+        wristPos += 0.03 * (gamepad.right_trigger-gamepad.left_trigger);
 
         claw.setPosition(clawPos);
         wrist.setPosition(wristPos);

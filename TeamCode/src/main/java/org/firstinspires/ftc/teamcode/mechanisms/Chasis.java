@@ -86,10 +86,11 @@ public class Chasis implements Mechanism{
             //keep the powers proportional and within a range of -1 to 1
             double motorMax = Math.max(Math.max(Math.abs(flPower), Math.abs(brPower)), Math.max(Math.abs(frPower), Math.abs(blPower)));
             double proportion = Math.max(1, motorMax);
-            frontLeft.setPower(flPower / proportion);
-            backRight.setPower(brPower / proportion);
-            frontRight.setPower(frPower / proportion);
-            backLeft.setPower(blPower / proportion);
+            double num = 0.8;
+            frontLeft.setPower(num * flPower / proportion);
+            backRight.setPower(num * brPower / proportion);
+            frontRight.setPower(num * frPower / proportion);
+            backLeft.setPower(num * blPower / proportion);
         } else {
             stopDrive();
         }
