@@ -5,7 +5,6 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.Const;
 import org.firstinspires.ftc.teamcode.mechanisms.Camera;
 import org.firstinspires.ftc.teamcode.opencv.SignalColor;
 
@@ -16,10 +15,9 @@ public class RightBlueAuto extends LinearOpMode {
     /**
      * Amount of time elapsed
      */
-    private ElapsedTime runtime = new ElapsedTime();
-    private RobotHardware robot = new RobotHardware();
-    private Camera camera = new Camera(telemetry);
-    private int parkingLocation;
+    private final ElapsedTime runtime = new ElapsedTime();
+    private final RobotHardware robot = new RobotHardware();
+    private final Camera camera = new Camera(telemetry);
     Thread telemetryHandler = new Thread(){
         @Override
         public void run() {
@@ -47,6 +45,7 @@ public class RightBlueAuto extends LinearOpMode {
         }
         level = camera.getColor();
         waitForStart();
+        int parkingLocation;
         switch (level) {
             case PURPLE:
                 parkingLocation = -1;
@@ -63,6 +62,7 @@ public class RightBlueAuto extends LinearOpMode {
         robot.setSlidePosition(Constants.MID_POSITION);
         robot.rotateToZero(0,1);
         robot.strafeRight(-0.1);
+        //noinspection StatementWithEmptyBody
         while(robot.getBackDistance()>30&&opModeIsActive()){}
         robot.stopDrive();
         sleep(1500);
@@ -74,17 +74,10 @@ public class RightBlueAuto extends LinearOpMode {
         robot.setSlidePosition(0);
         sleep(1000);
         robot.strafeRight(0.5,350,1);
-        robot.strafeRight(0.5,(parkingLocation*1000)+200,3);
+        robot.strafeRight(0.5,(parkingLocation *800)+200,3);
         sleep(1000);
         robot.rotateToZero(0,1);
         runtime.reset();
     }
-
-
-    public static void resetEncoder(DcMotor motor) {
-        motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-    }
-
 }
 

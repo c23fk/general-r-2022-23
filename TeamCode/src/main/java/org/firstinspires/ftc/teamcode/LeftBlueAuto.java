@@ -73,7 +73,7 @@ public class LeftBlueAuto extends LinearOpMode {
         robot.setSlidePosition(0);
         sleep(1000);
         robot.strafeRight(0.5,-450,1);
-        robot.strafeRight(0.5,parkingLocation*1000,3);
+        robot.strafeRight(0.5,parkingLocation*800,3);
         sleep(1000);
         robot.rotateToZero(0,1);
         runtime.reset();

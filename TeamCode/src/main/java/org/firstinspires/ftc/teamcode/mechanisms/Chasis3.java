@@ -11,14 +11,14 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.Constants;
 
-public class Chasis2 implements Mechanism{
+public class Chasis3 implements Mechanism{
     private DcMotor frontLeft = null;
     private DcMotor frontRight = null;
     private DcMotor backLeft = null;
     private DcMotor backRight = null;
     private BNO055IMU imu = null;
 
-    public Chasis2() {}
+    public Chasis3() {}
 
     @Override
     public void init(HardwareMap hardwareMap) {
@@ -62,10 +62,10 @@ public class Chasis2 implements Mechanism{
         double stickX = Math.abs(gamepad.left_stick_x) < Constants.STICK_THRESH ? 0 : gamepad.left_stick_x;
         double stickY = Math.abs(gamepad.left_stick_y) < Constants.STICK_THRESH ? 0 : -gamepad.left_stick_y;
         //get the direction from the IMU
-        //double angle = imu.getAngularOrientation().firstAngle;
+        double angle = imu.getAngularOrientation().firstAngle;
         //rotate the positions to prep for wheel powers
-        double rotatedX = (stickX * Math.cos(PI / 4)) - (stickY * Math.sin(PI / 4));
-        double rotatedY = (stickY * Math.cos(PI / 4)) + (stickX * Math.sin(PI / 4));
+        double rotatedX = (stickX * Math.cos(PI / 4 - angle)) - (stickY * Math.sin(PI / 4-angle));
+        double rotatedY = (stickY * Math.cos(PI / 4-angle)) + (stickX * Math.sin(PI / 4-angle));
         //determine how much the robot should turn
         double rotation = (gamepad.left_trigger - gamepad.right_trigger) * Constants.ROTATION_SENSITIVITY + (-gamepad.right_stick_x * 0.5);
         //test if the robot should move

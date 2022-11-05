@@ -32,7 +32,7 @@ public class ColorPipeline extends OpenCvPipeline {
         Scalar orangeLower = new Scalar(1,50,50);
         Scalar orangeUpper = new Scalar(10,255,255);
 
-        Scalar greenLower = new Scalar(50,50,0);
+        Scalar greenLower = new Scalar(50,0,0);
         Scalar greenUpper = new Scalar(70,255,255);
 
         Scalar purpleLower = new Scalar(160,100,100);
