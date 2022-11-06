@@ -58,6 +58,7 @@ public class LeftBlueAuto extends LinearOpMode {
                 break;
         }
         telemetryHandler.start();
+        robot.strafeRight(0.2,150,2);
         robot.forwardDrive(0.75,900,2);
         robot.setSlidePosition(Constants.MID_POSITION);
         robot.rotateToZero(0,1);

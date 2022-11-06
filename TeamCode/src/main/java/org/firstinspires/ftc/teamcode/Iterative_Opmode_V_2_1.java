@@ -39,9 +39,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.mechanisms.Chasis2;
-import org.firstinspires.ftc.teamcode.mechanisms.Chasis3;
-import org.firstinspires.ftc.teamcode.mechanisms.Claw;
+import org.firstinspires.ftc.teamcode.mechanisms.Chasis_2Drivers;
+import org.firstinspires.ftc.teamcode.mechanisms.Claw_2Drivers;
 
 /**
  * This file contains an example of an iterative (Non-Linear) "OpMode".
@@ -57,7 +56,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.Claw;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@TeleOp(name = "Layer Cake(ROSIE TEST 1)", group = "Iterative Opmode")
+@TeleOp(name = "Layer Cake(2 Drivers)", group = "Iterative Opmode")
 public class Iterative_Opmode_V_2_1 extends OpMode {
     // Declare OpMode members.
     private final ElapsedTime runtime = new ElapsedTime();
@@ -65,9 +64,8 @@ public class Iterative_Opmode_V_2_1 extends OpMode {
     private DistanceSensor distLeft = null;
     private DistanceSensor distRight = null;
     private DistanceSensor distBack = null;
-    private Claw claw = new Claw();
-    private Chasis3 chasis = new Chasis3();
-    //private Chasis chasis = new Chasis();
+    private Claw_2Drivers claw = new Claw_2Drivers();
+    private Chasis_2Drivers chasis = new Chasis_2Drivers();
     private int slidesTarget = 0;
 
     /*

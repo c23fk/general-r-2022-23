@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Constants;
 
-public class Claw implements Mechanism {
+public class Claw_1Driver implements Mechanism {
     private Servo claw = null;
     private Servo wrist = null;
     private double clawPos;
@@ -41,11 +41,6 @@ public class Claw implements Mechanism {
         } else if (gamepad.right_bumper) {
             wristPos = Constants.WRIST_DOWN;
         }
-        clawPos -= 0.01 * gamepad.left_stick_y;
-        claw.setPosition(clawPos);
-
-        wristPos += 0.03 * (gamepad.right_trigger-gamepad.left_trigger);
-
         claw.setPosition(clawPos);
         wrist.setPosition(wristPos);
     }

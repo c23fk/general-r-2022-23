@@ -39,9 +39,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.mechanisms.Chasis;
-import org.firstinspires.ftc.teamcode.mechanisms.Chasis2;
-import org.firstinspires.ftc.teamcode.mechanisms.Claw;
+import org.firstinspires.ftc.teamcode.mechanisms.Chasis_1Driver;
+import org.firstinspires.ftc.teamcode.mechanisms.Claw_2Drivers;
 
 /**
  * This file contains an example of an iterative (Non-Linear) "OpMode".
@@ -57,17 +56,16 @@ import org.firstinspires.ftc.teamcode.mechanisms.Claw;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@TeleOp(name = "Layer Cake", group = "Iterative Opmode")
-public class Iterative_Opmode_V_2 extends OpMode {
+@TeleOp(name = "Layer Cake(1 Driver)", group = "Iterative Opmode")
+public class Iterative_Opmode_V_2_3 extends OpMode {
     // Declare OpMode members.
     private final ElapsedTime runtime = new ElapsedTime();
     private DcMotor slides = null;
     private DistanceSensor distLeft = null;
     private DistanceSensor distRight = null;
     private DistanceSensor distBack = null;
-    private Claw claw = new Claw();
-    private Chasis2 chasis = new Chasis2();
-    //private Chasis chasis = new Chasis();
+    private Claw_2Drivers claw = new Claw_2Drivers();
+    private Chasis_1Driver chasis = new Chasis_1Driver();
     private int slidesTarget = 0;
 
     /*
@@ -124,28 +122,28 @@ public class Iterative_Opmode_V_2 extends OpMode {
     public void loop() {
 
         //slide presets
-        if (gamepad2.dpad_up) {
+        if (gamepad1.dpad_up) {
             slidesTarget = Constants.SLIDE_MAX;
-        } else if (gamepad2.dpad_right) {
+        } else if (gamepad1.dpad_right) {
             slidesTarget = Constants.MID_POSITION;
-        } else if (gamepad2.dpad_left) {
+        } else if (gamepad1.dpad_left) {
             slidesTarget = Constants.LOW_POSITION;
-        } else if (gamepad2.dpad_down) {
+        } else if (gamepad1.dpad_down) {
             slidesTarget = 0;
         }
         //manual adjustments to slide positions
-        slidesTarget += -gamepad2.right_stick_y * 50;
+        slidesTarget += -gamepad1.right_stick_y * 50;
         slidesTarget = Range.clip(slidesTarget, -50, Constants.SLIDE_MAX);
         //move the slides
         slides.setTargetPosition(slidesTarget);
         slides.setPower(Constants.SLIDE_POWER);
         //reset the zero position of the slides
-        if (gamepad2.x) {
+        if (gamepad1.x) {
             slides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             slides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         }
 
-        claw.run(gamepad2);
+        claw.run(gamepad1);
         chasis.run(gamepad1);
 
         telemetry.addData("wristPos: ", claw.getClawPosition());

@@ -29,13 +29,13 @@ public class ColorPipeline extends OpenCvPipeline {
     public Mat processFrame(Mat input) {
         input = input.submat(300,450,100,300);
 
-        Scalar orangeLower = new Scalar(1,50,50);
+        Scalar orangeLower = new Scalar(1,25,25);
         Scalar orangeUpper = new Scalar(10,255,255);
 
-        Scalar greenLower = new Scalar(50,0,0);
-        Scalar greenUpper = new Scalar(70,255,255);
+        Scalar greenLower = new Scalar(40,0,0);
+        Scalar greenUpper = new Scalar(83,255,255);
 
-        Scalar purpleLower = new Scalar(160,100,100);
+        Scalar purpleLower = new Scalar(150,0,0);
         Scalar purpleUpper = new Scalar(170,255,255);
 
         double orangeArea = findColorContourArea(input, orangeContours, orangeLower, orangeUpper, new Scalar(255, 100, 0));
