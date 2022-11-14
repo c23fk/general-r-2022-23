@@ -6,19 +6,17 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.Constants;
 
-public class Chasis_2Drivers implements Mechanism{
+public class Chassis_1Driver implements Mechanism{
     private DcMotor frontLeft = null;
     private DcMotor frontRight = null;
     private DcMotor backLeft = null;
     private DcMotor backRight = null;
     private BNO055IMU imu = null;
 
-    public Chasis_2Drivers() {}
+    public Chassis_1Driver() {}
 
     @Override
     public void init(HardwareMap hardwareMap) {
@@ -64,10 +62,10 @@ public class Chasis_2Drivers implements Mechanism{
         //get the direction from the IMU
         double angle = imu.getAngularOrientation().firstAngle;
         //rotate the positions to prep for wheel powers
-        double rotatedX = (stickX * Math.cos(PI / 4 - angle)) - (stickY * Math.sin(PI / 4-angle));
-        double rotatedY = (stickY * Math.cos(PI / 4-angle)) + (stickX * Math.sin(PI / 4-angle));
+        double rotatedX = (stickX * Math.cos(PI / 4)) - (stickY * Math.sin(PI / 4));
+        double rotatedY = (stickY * Math.cos(PI / 4)) + (stickX * Math.sin(PI / 4));
         //determine how much the robot should turn
-        double rotation = (gamepad.left_trigger - gamepad.right_trigger) * Constants.ROTATION_SENSITIVITY + (-gamepad.right_stick_x * 0.5);
+        double rotation = (gamepad.left_trigger - gamepad.right_trigger) * Constants.ROTATION_SENSITIVITY;
         //test if the robot should move
         double stickPower = Math.sqrt(rotatedX * rotatedX + rotatedY * rotatedY);
         boolean areTriggersDown = Math.abs(rotation) > 0;
@@ -90,18 +88,6 @@ public class Chasis_2Drivers implements Mechanism{
         } else {
             stopDrive();
         }
-        if (gamepad.dpad_up) {
-            rotateToZero(0);
-        }
-        if (gamepad.dpad_left) {
-            rotateToZero(PI/2);
-        }
-        if (gamepad.dpad_down) {
-            rotateToZero(PI);
-        }
-        if (gamepad.dpad_right) {
-            rotateToZero(-PI/2);
-        }
     }
 
     public void stopDrive() {
@@ -111,37 +97,6 @@ public class Chasis_2Drivers implements Mechanism{
         backLeft.setPower(0);
     }
 
-    private void rotateToZero(double angle) {
-        //use a PID control loop to zero
-        ElapsedTime timer = new ElapsedTime();
-        timer.reset();
-        double k_p = Math.PI/8;
-        double k_i = 0;
-        double k_d = 2;
-        double current_error = imu.getAngularOrientation().firstAngle - angle;
-        double previous_error = current_error;
-        double previous_time = 0;
-        double current_time;
-        double max_i = 0.1;
-        //while(timer.seconds() < 5){
-        while (Math.abs(imu.getAngularOrientation().firstAngle - angle) > Constants.TOLERANCE) {
-            current_time = timer.milliseconds();
-            current_error = angle - imu.getAngularOrientation().firstAngle;
-            double p = k_p * current_error;
-            double i = k_i * (current_error * (current_time - previous_time));
-            i = Range.clip(i, -max_i, max_i);
-            double d = k_d * ((current_error - previous_error) / (current_time - previous_time));
-            double power = p + i + d;
-            frontLeft.setPower(power);
-            frontRight.setPower(power);
-            backLeft.setPower(power);
-            backRight.setPower(power);
-            previous_error = current_error;
-            previous_time = current_time;
-        }
-
-        stopDrive();
-    }
     public double getAngle(){
         return imu.getAngularOrientation().firstAngle;
     }

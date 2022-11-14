@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.Camera;
 import org.firstinspires.ftc.teamcode.opencv.SignalColor;
 
 
-@Autonomous(name = "Left_Side_Blue")
+@Autonomous(name = "Left_Side_Blue", preselectTeleOp = "Layer Cake(1Driver)")
 public class LeftBlueAuto extends LinearOpMode {
 
     /**

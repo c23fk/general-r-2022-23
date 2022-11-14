@@ -39,7 +39,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.mechanisms.Chasis_1Driver;
+import org.firstinspires.ftc.teamcode.mechanisms.Chassis_1Driver;
+import org.firstinspires.ftc.teamcode.mechanisms.Claw_1Driver;
 import org.firstinspires.ftc.teamcode.mechanisms.Claw_2Drivers;
 
 /**
@@ -64,8 +65,8 @@ public class Iterative_Opmode_V_2_3 extends OpMode {
     private DistanceSensor distLeft = null;
     private DistanceSensor distRight = null;
     private DistanceSensor distBack = null;
-    private Claw_2Drivers claw = new Claw_2Drivers();
-    private Chasis_1Driver chasis = new Chasis_1Driver();
+    private final Claw_1Driver claw = new Claw_1Driver();
+    private final Chassis_1Driver chassis = new Chassis_1Driver();
     private int slidesTarget = 0;
 
     /*
@@ -96,7 +97,7 @@ public class Iterative_Opmode_V_2_3 extends OpMode {
         // Tell the driver that initialization is complete.
 
         claw.init(hardwareMap);
-        chasis.init(hardwareMap);
+        chassis.init(hardwareMap);
         telemetry.addData("Status", "Initialized");
     }
 
@@ -144,18 +145,18 @@ public class Iterative_Opmode_V_2_3 extends OpMode {
         }
 
         claw.run(gamepad1);
-        chasis.run(gamepad1);
+        chassis.run(gamepad1);
 
         telemetry.addData("wristPos: ", claw.getClawPosition());
         telemetry.addData("Slide Position: ", slides.getCurrentPosition());
         telemetry.addData("Distance on the left(cm): ", distLeft.getDistance(DistanceUnit.CM));
         telemetry.addData("Distance on the right(cm): ", distRight.getDistance(DistanceUnit.CM));
         telemetry.addData("Distance on the back(cm): ", distBack.getDistance(DistanceUnit.CM));
-        telemetry.addData("FL: ", chasis.getFrontLeftPosition());
-        telemetry.addData("FR: ", chasis.getFrontRightPosition());
-        telemetry.addData("BL: ", chasis.getBackLeftPosition());
-        telemetry.addData("BR: ", chasis.getBackRightPosition());
-        telemetry.addData("Angle: ", chasis.getAngle());
+        telemetry.addData("FL: ", chassis.getFrontLeftPosition());
+        telemetry.addData("FR: ", chassis.getFrontRightPosition());
+        telemetry.addData("BL: ", chassis.getBackLeftPosition());
+        telemetry.addData("BR: ", chassis.getBackRightPosition());
+        telemetry.addData("Angle: ", chassis.getAngle());
     }
 
 

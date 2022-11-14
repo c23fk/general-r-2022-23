@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.Camera;
 import org.firstinspires.ftc.teamcode.opencv.SignalColor;
 
 
-@Autonomous(name = "Right_Side_Blue")
+@Autonomous(name = "Right_Side_Blue", preselectTeleOp = "Layer Cake(1Driver)")
 public class RightBlueAuto extends LinearOpMode {
 
     /**
@@ -50,11 +50,11 @@ public class RightBlueAuto extends LinearOpMode {
             case PURPLE:
                 parkingLocation = -1;
                 break;
-            case GREEN:
-                parkingLocation = 1;
+            case ORANGE:
+                parkingLocation = 0;
                 break;
             default:
-                parkingLocation = 0;
+                parkingLocation = 1;
                 break;
         }
         telemetryHandler.start();
