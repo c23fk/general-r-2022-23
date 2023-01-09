@@ -94,7 +94,7 @@ public class ColorPipeline extends OpenCvPipeline {
             Imgproc.drawContours(input,contours,index,color);
             return Imgproc.contourArea(workingContour);
         }catch(Exception ignored){
-            System.out.println("Orange Contour not found");
+            //System.out.println("Orange Contour not found");
             return 0;
         }
 

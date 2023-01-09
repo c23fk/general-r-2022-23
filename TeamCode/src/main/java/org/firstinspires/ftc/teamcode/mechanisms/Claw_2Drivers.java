@@ -41,10 +41,10 @@ public class Claw_2Drivers implements Mechanism {
         } else if (gamepad.right_bumper) {
             wristPos = Constants.WRIST_DOWN;
         }
-        clawPos -= 0.01 * gamepad.left_stick_y;
+        //clawPos -= 0.01 * gamepad.left_stick_y;
         claw.setPosition(clawPos);
 
-        wristPos += 0.03 * (gamepad.right_trigger-gamepad.left_trigger);
+        wristPos += 0.03 * (-gamepad.left_stick_y);
 
         claw.setPosition(clawPos);
         wrist.setPosition(wristPos);
