@@ -19,11 +19,16 @@ public class Turret implements Mechanism {
 
     @Override
     public void run(Gamepad gamepad){
-        turretPos += Math.min(Math.max(0.001 * (gamepad.right_trigger-gamepad.left_trigger),-1),1);
+        turretPos += Math.min(Math.max(0.001 * (gamepad.left_trigger-gamepad.right_trigger),-1),1);
 //        TODO: add presets
         turret.setPosition(turretPos);
     }
     public double getTurretPosition() {
         return turretPos;
+    }
+
+    public void setTurretPosition(double pos) {
+        turretPos = pos;
+        turret.setPosition(turretPos);
     }
 }

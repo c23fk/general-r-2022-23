@@ -18,15 +18,17 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public class Camera implements Mechanism{
+public class Camera_RB2 implements Mechanism{
     private OpenCvWebcam webcam;
     private ColorPipeline pipeline;
     private SignalColor color;
     private final Telemetry telemetry;
+    private double largestArea = 0;
     private boolean initialized = false;
+    private double yellowArea = 0;
     private LinkedList<SignalColor> colors = new LinkedList<>();
 
-    public Camera(Telemetry telemetry){
+    public Camera_RB2(Telemetry telemetry){
         this.telemetry = telemetry;
     }
 
@@ -40,7 +42,37 @@ public class Camera implements Mechanism{
         webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
             public void onOpened() {
-                webcam.startStreaming(Constants.CAM_WIDTH, Constants.CAM_HEIGHT, OpenCvCameraRotation.SIDEWAYS_LEFT);
+                webcam.startStreaming(Constants.CAM_WIDTH, Constants.CAM_HEIGHT, OpenCvCameraRotation.UPRIGHT);
+                //telemetry.addData("Camera status:", "initialized");
+                telemetry.update();
+            }
+
+            @Override
+            public void onError(int errorCode) {
+                telemetry.addData("Camera status:", "error");
+                // This will be called if the camera could not be opened
+            }
+        });
+        double startTime = System.currentTimeMillis();
+        while(pipeline.getColor() == SignalColor.UNSET && System.currentTimeMillis() - startTime < 3000){
+            telemetry.addData("camera ready?", initialized);
+            telemetry.update(); // Update telemetry
+        }
+        initialized = true;
+        telemetry.addData("camera ready?", initialized);
+        telemetry.update();
+    }
+
+    public void init(HardwareMap hardwareMap, String number) {
+        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam "+number), cameraMonitorViewId);
+        pipeline = new ColorPipeline(telemetry);
+        webcam.setPipeline(pipeline);
+        webcam.setMillisecondsPermissionTimeout(2500);
+        webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
+            @Override
+            public void onOpened() {
+                webcam.startStreaming(Constants.CAM_WIDTH, Constants.CAM_HEIGHT, OpenCvCameraRotation.UPRIGHT);
                 //telemetry.addData("Camera status:", "initialized");
                 telemetry.update();
             }
@@ -63,11 +95,10 @@ public class Camera implements Mechanism{
 
     @Override
     public void run(Gamepad gamepad) {
-//        if(!initialized){
-//            throw new RuntimeException("Camera not initialized");
-//        }
+
         if(pipeline.getColor() != SignalColor.UNSET) {
             colors.add(pipeline.getColor());
+            largestArea = pipeline.getMaxArea();
             if(colors.size() > 100) {
                 colors.removeFirst();
             }
@@ -84,6 +115,12 @@ public class Camera implements Mechanism{
     public SignalColor getColor(){
         return color;
     }
+
+    public double getYellowArea(){
+        return pipeline.getYellowArea();
+    }
+
+    public double getLargestArea(){ return largestArea; }
 
     // This is copied from stack overflow
     public static <T> T mostCommon(List<T> list) {
@@ -107,8 +144,6 @@ public class Camera implements Mechanism{
     public boolean initialized(){
         return initialized;
     }
-
-
 
     public double getYellowLocation(){
         return pipeline.getYellowLocation();

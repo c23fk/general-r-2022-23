@@ -18,56 +18,37 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public class Camera implements Mechanism{
-    private OpenCvWebcam webcam;
-    private ColorPipeline pipeline;
-    private SignalColor color;
+public class Camera_Array implements Mechanism{
     private final Telemetry telemetry;
+    private Camera_RB2 cam1 = null;
+    private Camera_RB2 cam2 = null;
+    private SignalColor color;
     private boolean initialized = false;
+    private boolean focusCam1 = true;
     private LinkedList<SignalColor> colors = new LinkedList<>();
 
-    public Camera(Telemetry telemetry){
+    public Camera_Array(Telemetry telemetry){
         this.telemetry = telemetry;
     }
 
     @Override
     public void init(HardwareMap hardwareMap) {
-        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
-        pipeline = new ColorPipeline(telemetry);
-        webcam.setPipeline(pipeline);
-        webcam.setMillisecondsPermissionTimeout(2500);
-        webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
-            @Override
-            public void onOpened() {
-                webcam.startStreaming(Constants.CAM_WIDTH, Constants.CAM_HEIGHT, OpenCvCameraRotation.SIDEWAYS_LEFT);
-                //telemetry.addData("Camera status:", "initialized");
-                telemetry.update();
-            }
-
-            @Override
-            public void onError(int errorCode) {
-                telemetry.addData("Camera status:", "error");
-                // This will be called if the camera could not be opened
-            }
-        });
-        double startTime = System.currentTimeMillis();
-        while(pipeline.getColor() == SignalColor.UNSET && System.currentTimeMillis() - startTime < 3000){
-            telemetry.addData("camera ready?", initialized);
-            telemetry.update(); // Update telemetry
-        }
+        cam1 = new Camera_RB2(telemetry);
+        cam2 = new Camera_RB2(telemetry);
+        cam1.init(hardwareMap, "1");
+        cam2.init(hardwareMap, "2");
+        while(!cam1.initialized() || ! cam2.initialized()){}
         initialized = true;
-        telemetry.addData("camera ready?", initialized);
-        telemetry.update();
     }
 
     @Override
     public void run(Gamepad gamepad) {
-//        if(!initialized){
-//            throw new RuntimeException("Camera not initialized");
-//        }
-        if(pipeline.getColor() != SignalColor.UNSET) {
-            colors.add(pipeline.getColor());
+        if(cam1.getColor() != SignalColor.UNSET||cam2.getColor() != SignalColor.UNSET) {
+            if(cam1.getLargestArea()>cam2.getLargestArea()){
+                colors.add(cam1.getColor());
+            }else{
+                colors.add(cam2.getColor());
+            }
             if(colors.size() > 100) {
                 colors.removeFirst();
             }
@@ -75,8 +56,9 @@ public class Camera implements Mechanism{
         if (colors.size() > 100) {
             colors.removeFirst();
         }
-        telemetry.addData("Color:", pipeline.getColor());
-        telemetry.addData("MostCommon:", mostCommon(colors));
+        telemetry.addData("Cam_1 Color:", cam1.getColor());
+        telemetry.addData("Cam_2 Color:", cam2.getColor());
+        telemetry.addData("Most Common:", mostCommon(colors));
         telemetry.addData("length", colors.size());
         telemetry.update();
         color = mostCommon(colors);
@@ -104,13 +86,27 @@ public class Camera implements Mechanism{
         return max.getKey();
     }
 
+    public double getYellowLocation(){
+        if(cam1.getYellowArea()>cam2.getYellowArea()) {
+            focusCam1 = true;
+            return cam1.getYellowLocation();
+        }
+        focusCam1 = false;
+        return cam2.getYellowLocation();
+    }
     public boolean initialized(){
         return initialized;
     }
 
-
-
-    public double getYellowLocation(){
-        return pipeline.getYellowLocation();
+    public boolean cam1Focus(){
+        return focusCam1;
     }
+
+    public double calculateMovement(){
+        double thatThing = 0.01;//smallifys the numbers
+        Camera_RB2 cam = focusCam1?cam1:cam2;
+        double alignment = focusCam1?440:120;
+        return (alignment-cam.getYellowLocation())/Constants.CAM_WIDTH * thatThing;
+    }
+
 }

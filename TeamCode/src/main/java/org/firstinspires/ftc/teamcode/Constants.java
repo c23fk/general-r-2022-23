@@ -12,7 +12,7 @@ public class Constants {
     public static final int CAM_HEIGHT = 480;
     public static final double TOLERANCE = Math.PI/32;
     public static final double CLAW_OPEN = 0;
-    public static final double CLAW_CLOSED = 0.6;
+    public static final double CLAW_CLOSED = 0.50;
     public static final double WRIST_UP = 0.2;
     public static final double WRIST_DOWN = 0.5;
     public static final double CAMERA_POSITION = 0; //set this
