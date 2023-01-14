@@ -39,6 +39,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.mechanisms.Camera_Array;
 import org.firstinspires.ftc.teamcode.mechanisms.Chassis_2Drivers;
 import org.firstinspires.ftc.teamcode.mechanisms.Chassis_Robot2;
 import org.firstinspires.ftc.teamcode.mechanisms.Claw_1Driver;
@@ -64,6 +65,7 @@ public class robo2_Iterative_Opmode extends OpMode {
     // Declare OpMode members.
     private final ElapsedTime runtime = new ElapsedTime();
     private DcMotor slides = null;
+    private Camera_Array cameras = new Camera_Array(telemetry);
     private final Chassis_Robot2 chassis = new Chassis_Robot2();
     private final Claw_2Drivers claw = new Claw_2Drivers();
     private final Turret turret = new Turret();

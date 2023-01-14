@@ -16,7 +16,7 @@ public class ColorPipeline extends OpenCvPipeline {
     ArrayList<MatOfPoint> greenContours = new ArrayList<>();
     ArrayList<MatOfPoint> purpleContours = new ArrayList<>();
     ArrayList<MatOfPoint> yellowContours = new ArrayList<>();
-    SignalColor color = SignalColor.UNSET;
+    SignalColor color = SignalColor.INACTIVE;
     double maxArea;
     Double yellowLocation = null;
     Double yellowSize;
@@ -66,12 +66,12 @@ public class ColorPipeline extends OpenCvPipeline {
         }
 
 
-        telemetry.addData("Color", color);
-        telemetry.addData("Orange Area", orangeArea);
-        telemetry.addData("Green Area", greenArea);
-        telemetry.addData("Purple Area", purpleArea);
-        telemetry.addData("Yellow Location", yellowPosition);
-        telemetry.update();
+//        telemetry.addData("Color", color);
+//        telemetry.addData("Orange Area", orangeArea);
+//        telemetry.addData("Green Area", greenArea);
+//        telemetry.addData("Purple Area", purpleArea);
+//        telemetry.addData("Yellow Location", yellowPosition);
+//        telemetry.update();
         return input;
     }
 
@@ -162,9 +162,9 @@ public class ColorPipeline extends OpenCvPipeline {
     }
 
     public double getYellowArea(){
-        return yellowSize;
+        return yellowSize==null?-1:yellowSize;
     }
     public double getYellowLocation() {
-        return yellowLocation;
+        return yellowLocation ==null? 0:yellowLocation;
     }
 }

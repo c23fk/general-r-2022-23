@@ -53,12 +53,12 @@ public class Camera implements Mechanism{
         });
         double startTime = System.currentTimeMillis();
         while(pipeline.getColor() == SignalColor.UNSET && System.currentTimeMillis() - startTime < 3000){
-            telemetry.addData("camera ready?", initialized);
-            telemetry.update(); // Update telemetry
+            //telemetry.addData("camera ready?", initialized);
+            //telemetry.update(); // Update telemetry
         }
         initialized = true;
-        telemetry.addData("camera ready?", initialized);
-        telemetry.update();
+        //telemetry.addData("camera ready?", initialized);
+        //telemetry.update();
     }
 
     @Override

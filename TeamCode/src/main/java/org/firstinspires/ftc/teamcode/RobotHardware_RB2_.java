@@ -124,8 +124,6 @@ public class RobotHardware_RB2_ {
         parameters.loggingEnabled = false;
         imu.initialize(parameters);
         //initialize the camera
-        telemetry.addData("Camera status:", "waiting");
-        telemetry.update();
     }
 
 
