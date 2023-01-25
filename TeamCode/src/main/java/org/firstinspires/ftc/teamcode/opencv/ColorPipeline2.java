@@ -9,9 +9,10 @@ import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvPipeline;
+
 import java.util.ArrayList;
 
-public class  ColorPipeline extends OpenCvPipeline {
+public class ColorPipeline2 extends OpenCvPipeline {
     ArrayList<MatOfPoint> orangeContours = new ArrayList<>();
     ArrayList<MatOfPoint> greenContours = new ArrayList<>();
     ArrayList<MatOfPoint> purpleContours = new ArrayList<>();
@@ -22,7 +23,7 @@ public class  ColorPipeline extends OpenCvPipeline {
     Double yellowSize;
     Telemetry telemetry;
 
-    public ColorPipeline(Telemetry telemetry) {
+    public ColorPipeline2(Telemetry telemetry) {
         this.telemetry = telemetry;
     }
 
@@ -45,7 +46,7 @@ public class  ColorPipeline extends OpenCvPipeline {
         double orangeArea = findColorContourArea(input, orangeContours, orangeLower, orangeUpper, new Scalar(255, 100, 0));
         double greenArea = findColorContourArea(input, greenContours, greenLower, greenUpper, new Scalar(0, 255, 0));
         double purpleArea = findColorContourArea(input, purpleContours, purpleLower, purpleUpper, new Scalar(255, 0, 255));
-        double yellowPosition = getColorPosition(input,yellowContours, yellowLower, yellowUpper, new Scalar(255, 255, 0));
+        double yellowPosition = getColorPosition(input,yellowContours, yellowLower, yellowUpper, new Scalar(255, 255, 0),yellowSize);
 
         //pick the color with the largest area
         maxArea = Math.max(Math.max(purpleArea,orangeArea),greenArea);
@@ -114,7 +115,7 @@ public class  ColorPipeline extends OpenCvPipeline {
 
     }
 
-    private double getColorPosition(Mat input, ArrayList<MatOfPoint> contours, Scalar lower, Scalar upper, Scalar color){
+    private double getColorPosition(Mat input, ArrayList<MatOfPoint> contours, Scalar lower, Scalar upper, Scalar color, Double area){
         Mat workingMat = new Mat();
         //convert to HSV
         Imgproc.cvtColor(input,workingMat,Imgproc.COLOR_RGB2HSV);
@@ -145,7 +146,7 @@ public class  ColorPipeline extends OpenCvPipeline {
         //add the contour to the image
         try {
             Imgproc.drawContours(input,contours,index,color);
-            yellowSize = Imgproc.contourArea(workingContour);
+            area = Imgproc.contourArea(workingContour);
             return Imgproc.boundingRect(workingContour).x + Imgproc.boundingRect(workingContour).width/2.0;
         }catch(Exception ignored){
             //System.out.println("Orange Contour not found");

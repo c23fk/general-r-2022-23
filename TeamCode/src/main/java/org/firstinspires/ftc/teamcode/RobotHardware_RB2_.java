@@ -30,6 +30,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
@@ -51,6 +52,9 @@ public class RobotHardware_RB2_ {
     private Servo wrist = null;
     private Servo claw = null;
     private BNO055IMU imu = null;
+    private DistanceSensor leftDist = null;
+    private DistanceSensor rightDist = null;
+    private ColorSensor color = null;
     /* local OpMode members. */
     HardwareMap hardwareMap = null;
     Telemetry telemetry;
@@ -72,13 +76,17 @@ public class RobotHardware_RB2_ {
         frontRight = hardwareMap.get(DcMotor.class, "fr");
         backRight = hardwareMap.get(DcMotor.class, "br");
         backLeft = hardwareMap.get(DcMotor.class, "bl");
+        leftDist = hardwareMap.get(DistanceSensor.class, "leftDist");
+        rightDist = hardwareMap.get(DistanceSensor.class, "rightDist");
+        color = hardwareMap.get(ColorSensor.class, "color");
+
         //spin = hardwareMap.get(DcMotor.class, "spin");
         slides = hardwareMap.get(DcMotor.class, "slides");
         //intake = hardwareMap.get(DcMotor.class, "nom");
         //set the direction of each motor
-        frontLeft.setDirection(DcMotor.Direction.FORWARD);
+        frontLeft.setDirection(DcMotor.Direction.REVERSE);
         frontRight.setDirection(DcMotor.Direction.FORWARD);
-        backLeft.setDirection(DcMotor.Direction.FORWARD);
+        backLeft.setDirection(DcMotor.Direction.REVERSE);
         backRight.setDirection(DcMotor.Direction.FORWARD);
         //spin.setDirection(DcMotorSimple.Direction.REVERSE);
         slides.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -95,7 +103,7 @@ public class RobotHardware_RB2_ {
         claw = hardwareMap.get(Servo.class, "claw");
         //init slides
         claw.setPosition(Constants.CLAW_CLOSED);
-        wrist.setPosition(Constants.WRIST_UP);
+        wrist.setPosition(Constants.WRIST_DOWN);
         // Set all motors to zero power
         frontLeft.setPower(0);
         frontRight.setPower(0);
@@ -216,9 +224,9 @@ public class RobotHardware_RB2_ {
         backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         //set target positions
-        frontLeft.setTargetPosition(-position);
+        frontLeft.setTargetPosition(position);
         frontRight.setTargetPosition(position);
-        backLeft.setTargetPosition(-position);
+        backLeft.setTargetPosition(position);
         backRight.setTargetPosition(position);
         //set to run to position
         frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -243,9 +251,9 @@ public class RobotHardware_RB2_ {
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        frontLeft.setPower(-power);
+        frontLeft.setPower(power);
         frontRight.setPower(-power);
-        backLeft.setPower(power);
+        backLeft.setPower(-power);
         backRight.setPower(power);
     }
     public void strafeRight(double power, int position, double timeout) {
@@ -257,9 +265,9 @@ public class RobotHardware_RB2_ {
         backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         //set target positions
-        frontLeft.setTargetPosition(-position);
+        frontLeft.setTargetPosition(position);
         frontRight.setTargetPosition(-position);
-        backLeft.setTargetPosition(position);
+        backLeft.setTargetPosition(-position);
         backRight.setTargetPosition(position);
         //set to run to position
         frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);

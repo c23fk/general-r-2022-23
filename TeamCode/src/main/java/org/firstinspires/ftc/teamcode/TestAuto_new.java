@@ -25,6 +25,23 @@ public class TestAuto_new extends LinearOpMode {
         public void run() {
             while (opModeIsActive()) {
                 telemetry.addData("Runtime(s): ", runtime.seconds());
+                telemetry.addData("Yellow", cameras.getYellowLocation());
+                telemetry.addData("turretpos", turret.getTurretPosition());
+                telemetry.addData("cam1 -- position", cameras.yellowPos(1));
+                telemetry.addData("cam2 -- position", cameras.yellowPos(2));
+                telemetry.addData("cam 1 -- area", cameras.yellowArea(1));
+                telemetry.addData("cam2 -- area", cameras.yellowArea(2));
+                double movement = cameras.calculateMovement();
+                telemetry.addData("movement", movement);
+                telemetry.addData("focusCam1:", cameras.cam1Focus());
+                if(gamepad1.right_bumper) {
+                    turret.setTurretPosition(turret.getTurretPosition() + movement);
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
                 telemetry.update();
             }
         }
@@ -72,27 +89,13 @@ public class TestAuto_new extends LinearOpMode {
                 parkingLocation = 1;
                 break;
         }
-        //telemetryHandler.start();
+        telemetryHandler.start();
         telemetry.addData("Status", "running...");
         telemetry.addData("Version", "1.0");
         telemetry.update();
-        while(opModeIsActive()) {
-            robot.setSlidePosition(Constants.LOW_POSITION);
-            telemetry.addData("Yellow", cameras.getYellowLocation());
-            telemetry.addData("turretpos", turret.getTurretPosition());
-            telemetry.addData("cam1 -- position", cameras.yellowPos(1));
-            telemetry.addData("cam2 -- position", cameras.yellowPos(2));
-            telemetry.addData("cam 1 -- area", cameras.yellowArea(1));
-            telemetry.addData("cam2 -- area", cameras.yellowArea(2));
-            double movement = cameras.calculateMovement();
-            telemetry.addData("movement", movement);
-            telemetry.addData("focusCam1:", cameras.cam1Focus());
-            if(gamepad1.right_bumper) {
-                turret.setTurretPosition(turret.getTurretPosition() + movement);
-                sleep(100);
-            }
-            telemetry.update();
-        }
+        robot.setSlidePosition(Constants.LOW_POSITION);
+        //robot.forwardDrive(0.5,2000,1);
+        while(opModeIsActive()){}
     }
 }
 

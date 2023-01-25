@@ -46,7 +46,7 @@ public class Camera_Array implements Mechanism{
         cam1.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
             public void onOpened() {
-                cam1.startStreaming(Constants.CAM_WIDTH, Constants.CAM_HEIGHT, OpenCvCameraRotation.UPRIGHT);
+                cam1.startStreaming(Constants.CAM_WIDTH/2, Constants.CAM_HEIGHT/2, OpenCvCameraRotation.UPRIGHT);
                 //telemetry.addData("Camera status:", "initialized");
             }
 
@@ -62,7 +62,7 @@ public class Camera_Array implements Mechanism{
         cam2.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
             public void onOpened() {
-                cam2.startStreaming(Constants.CAM_WIDTH, Constants.CAM_HEIGHT, OpenCvCameraRotation.UPRIGHT);
+                cam2.startStreaming(Constants.CAM_WIDTH/2, Constants.CAM_HEIGHT/2, OpenCvCameraRotation.UPRIGHT);
                 //telemetry.addData("Camera status:", "initialized");
             }
 
@@ -150,19 +150,19 @@ public class Camera_Array implements Mechanism{
 
     public double yellowArea(int cam){
         if(cam == 1){
-            return pipeline1.getYellowLocation();
+            return pipeline1.getYellowArea();
         }
-        return pipeline2.getYellowLocation();
+        return pipeline2.getYellowArea();
     }
 
     public double calculateMovement(){
         double yellowX = getYellowLocation();
-        double thatThing = 0.0025;//smallifys the numbers
+        double thatThing = 0.0075;//smallifys the numbers
         ColorPipeline cam = focusCam1?pipeline1:pipeline2;
         if(cam.getYellowArea() == 0) {
             return 0;
         }
-        double alignment = focusCam1?440:170;
+        double alignment = focusCam1?221:103;
         return (alignment-yellowX)/Constants.CAM_WIDTH * thatThing;
     }
 

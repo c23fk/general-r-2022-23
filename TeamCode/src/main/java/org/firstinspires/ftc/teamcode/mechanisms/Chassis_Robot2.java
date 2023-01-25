@@ -2,14 +2,19 @@ package org.firstinspires.ftc.teamcode.mechanisms;
 
 import static java.lang.Math.PI;
 
+import android.graphics.Color;
+
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Constants;
 
 public class Chassis_Robot2 implements Mechanism{
@@ -17,6 +22,9 @@ public class Chassis_Robot2 implements Mechanism{
     private DcMotor frontRight = null;
     private DcMotor backLeft = null;
     private DcMotor backRight = null;
+    private DistanceSensor rightDist = null;
+    private DistanceSensor leftDist = null;
+    private ColorSensor color = null;
     private BNO055IMU imu = null;
 
     public Chassis_Robot2() {}
@@ -35,10 +43,15 @@ public class Chassis_Robot2 implements Mechanism{
         parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
         parameters.loggingEnabled = false;
         imu.initialize(parameters);
+        //distance sensors
+        rightDist = hardwareMap.get(DistanceSensor.class, "rightDist");
+        leftDist = hardwareMap.get(DistanceSensor.class, "leftDist");
+        //color sensor
+        color = hardwareMap.get(ColorSensor.class, "color");
 
-        frontLeft.setDirection(DcMotor.Direction.FORWARD);
+        frontLeft.setDirection(DcMotor.Direction.REVERSE);
         frontRight.setDirection(DcMotor.Direction.FORWARD);
-        backLeft.setDirection(DcMotor.Direction.FORWARD);
+        backLeft.setDirection(DcMotor.Direction.REVERSE);
         backRight.setDirection(DcMotor.Direction.FORWARD);
 
         frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -55,9 +68,19 @@ public class Chassis_Robot2 implements Mechanism{
         backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
-
     @Override
     public void run(Gamepad gamepad) {
+        double y = -gamepad.left_stick_y; // Remember, this is reversed!
+        double x = gamepad.left_stick_x;
+        double rx = (gamepad.right_trigger - gamepad.left_trigger) * Constants.ROTATION_SENSITIVITY + (-gamepad.right_stick_x * 0.5);
+
+        frontLeft.setPower(y - x + rx);
+        backLeft.setPower(y + x + rx);
+        frontRight.setPower(y - x - rx);
+        backRight.setPower(y + x - rx);
+    }
+
+    public void run(Gamepad gamepad, int wait) {
         //Get the positions of the left stick in terms of x and y
         //Invert y because of the input from the controller
         double stickX = Math.abs(gamepad.left_stick_x) < Constants.STICK_THRESH ? 0 : gamepad.left_stick_x;
@@ -69,6 +92,7 @@ public class Chassis_Robot2 implements Mechanism{
         double rotatedY = (stickY * Math.cos(PI / 4-angle)) + (stickX * Math.sin(PI / 4-angle));
         //determine how much the robot should turn
         double rotation = (gamepad.left_trigger - gamepad.right_trigger) * Constants.ROTATION_SENSITIVITY + (-gamepad.right_stick_x * 0.5);
+
         //test if the robot should move
         double stickPower = Math.sqrt(rotatedX * rotatedX + rotatedY * rotatedY);
         boolean areTriggersDown = Math.abs(rotation) > 0;
@@ -78,10 +102,10 @@ public class Chassis_Robot2 implements Mechanism{
             double motorMax = Math.max(Math.abs(rotatedX)+rotation, Math.abs(rotatedY)+rotation);
             double proportion = Math.max(1, motorMax);
             double num = (1 / proportion)* stickPower;
-            double flPower = num * -rotatedY + rotation;
-            double brPower = num * rotatedY/proportion + rotation;
-            double frPower = num * -rotatedX/proportion + rotation;
-            double blPower = num * rotatedX/proportion + rotation;
+            double flPower = num * -rotatedY - rotation;
+            double brPower = num * rotatedY + rotation;
+            double frPower = num * -rotatedX + rotation;
+            double blPower = num * rotatedX - rotation;
             //keep the powers proportional and within a range of -1 to 1
 
             frontLeft.setPower(flPower / proportion);
@@ -161,5 +185,18 @@ public class Chassis_Robot2 implements Mechanism{
 
     public double getBackRightPosition() {
         return backRight.getCurrentPosition();
+    }
+
+    public double getLeftDistance(){
+        return leftDist.getDistance(DistanceUnit.CM);
+    }
+    public double getRightDistance(){
+        return rightDist.getDistance(DistanceUnit.CM);
+    }
+    public double getRed(){
+        return color.red();
+    }
+    public double getBlue(){
+        return color.blue();
     }
 }

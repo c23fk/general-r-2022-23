@@ -154,6 +154,10 @@ public class robo2_Iterative_Opmode extends OpMode {
         telemetry.addData("BL: ", chassis.getBackLeftPosition());
         telemetry.addData("BR: ", chassis.getBackRightPosition());
         telemetry.addData("Angle: ", chassis.getAngle());
+        telemetry.addData("Right: ", chassis.getRightDistance());
+        telemetry.addData("Left: ", chassis.getLeftDistance());
+        telemetry.addData("Red: ", chassis.getRed());
+        telemetry.addData("Blue: ", chassis.getBlue());
     }
 
 
