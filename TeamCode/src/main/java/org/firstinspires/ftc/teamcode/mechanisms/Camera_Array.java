@@ -8,12 +8,15 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.opencv.ColorPipeline;
+import org.firstinspires.ftc.teamcode.opencv.ColorTags;
 import org.firstinspires.ftc.teamcode.opencv.SignalColor;
+import org.openftc.apriltag.AprilTagDetection;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvWebcam;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -22,14 +25,14 @@ import java.util.Map;
 public class Camera_Array implements Mechanism{
     private final Telemetry telemetry;
     private OpenCvWebcam cam1;
-    private ColorPipeline pipeline1;
+    private ColorTags pipeline1;
     private OpenCvWebcam cam2;
-    private ColorPipeline pipeline2;
-    private SignalColor color;
+    private ColorTags pipeline2;
+    private int tag;
     private boolean initialized = false;
     private boolean focusCam1 = true;
 
-    private LinkedList<SignalColor> colors = new LinkedList<>();
+    private LinkedList<Integer> tags = new LinkedList<>();
 
     public Camera_Array(Telemetry telemetry){
         this.telemetry = telemetry;
@@ -40,13 +43,13 @@ public class Camera_Array implements Mechanism{
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         int[] viewportContainerIds = OpenCvCameraFactory.getInstance().splitLayoutForMultipleViewports(cameraMonitorViewId,2, OpenCvCameraFactory.ViewportSplitMethod.HORIZONTALLY);
         cam1 = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), viewportContainerIds[0]);
-        pipeline1 = new ColorPipeline(telemetry);
+        pipeline1 = new ColorTags(Constants.tagsize,Constants.fx,Constants.fy,Constants.cx,Constants.cy);
         cam1.setPipeline(pipeline1);
         cam1.setMillisecondsPermissionTimeout(2500);
         cam1.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
             public void onOpened() {
-                cam1.startStreaming(Constants.CAM_WIDTH/2, Constants.CAM_HEIGHT/2, OpenCvCameraRotation.UPRIGHT);
+                cam1.startStreaming(Constants.CAM_WIDTH, Constants.CAM_HEIGHT, OpenCvCameraRotation.UPRIGHT);
                 //telemetry.addData("Camera status:", "initialized");
             }
 
@@ -56,13 +59,13 @@ public class Camera_Array implements Mechanism{
             }
         });
         cam2 = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 2"), viewportContainerIds[1]);
-        pipeline2 = new ColorPipeline(telemetry);
+        pipeline2 = new ColorTags(Constants.tagsize,Constants.fx,Constants.fy,Constants.cx,Constants.cy);
         cam2.setPipeline(pipeline2);
         cam2.setMillisecondsPermissionTimeout(2500);
         cam2.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
             public void onOpened() {
-                cam2.startStreaming(Constants.CAM_WIDTH/2, Constants.CAM_HEIGHT/2, OpenCvCameraRotation.UPRIGHT);
+                cam2.startStreaming(Constants.CAM_WIDTH, Constants.CAM_HEIGHT, OpenCvCameraRotation.UPRIGHT);
                 //telemetry.addData("Camera status:", "initialized");
             }
 
@@ -71,7 +74,8 @@ public class Camera_Array implements Mechanism{
                 // This will be called if the camera could not be opened
             }
         });
-        while(pipeline1.getColor() == SignalColor.INACTIVE|| pipeline2.getColor() == SignalColor.INACTIVE){
+        double start = System.currentTimeMillis();
+        while(pipeline1.getYellowArea() == -1|| pipeline2.getYellowArea() == -1){
             telemetry.addData("cameras:", "initializing");
             telemetry.update();
         }
@@ -82,28 +86,30 @@ public class Camera_Array implements Mechanism{
 
     @Override
     public void run(Gamepad gamepad) {
-        if(pipeline1.getColor() != SignalColor.UNSET||pipeline2.getColor() != SignalColor.UNSET) {
-            if(pipeline1.getMaxArea()>pipeline2.getMaxArea()){
-                colors.add(pipeline1.getColor());
-            }else{
-                colors.add(pipeline2.getColor());
-            }
-            if(colors.size() > 100) {
-                colors.removeFirst();
-            }
+        ArrayList<AprilTagDetection> pip1 = pipeline1.getLatestDetections();
+        ArrayList<AprilTagDetection> pip2 = pipeline2.getLatestDetections();
+        if(pip1.size() != 0) {
+            tags.add(pip1.get(0).id);
         }
-        if (colors.size() > 100) {
-            colors.removeFirst();
+        if(pip2.size() != 0) {
+            tags.add(pip2.get(0).id);
         }
-        color = mostCommon(colors);
-        telemetry.addData("Cam_1 Color:", pipeline1.getColor());
-        telemetry.addData("Cam_2 Color:", pipeline2.getColor());
-        telemetry.addData("Most Common:", mostCommon(colors));
-        telemetry.addData("length", colors.size());
+        while(tags.size()>100){
+            tags.removeFirst();
+        }
+        try {
+            tag = mostCommon(tags);
+        }catch(Exception e){
+            tag = 4;
+        }
+        telemetry.addData("Cam_1 Tag:", pipeline1.getLatestDetections().size() == 0? "none":pipeline1.getLatestDetections().get(0).id);
+        telemetry.addData("Cam_2 Tag:", pipeline2.getLatestDetections().size() == 0? "none":pipeline2.getLatestDetections().get(0).id);
+        telemetry.addData("Most Common:", mostCommon(tags));
+        telemetry.addData("length", tags.size());
 
     }
-    public SignalColor getColor(){
-        return color;
+    public int getTag(){
+        return tag;
     }
 
     // This is copied from stack overflow
@@ -155,15 +161,22 @@ public class Camera_Array implements Mechanism{
         return pipeline2.getYellowArea();
     }
 
+    public OpenCvWebcam getCamera(int cam){
+        if(cam == 1){
+            return cam1;
+        }
+        return cam2;
+    }
+
     public double calculateMovement(){
         double yellowX = getYellowLocation();
-        double thatThing = 0.0075;//smallifys the numbers
-        ColorPipeline cam = focusCam1?pipeline1:pipeline2;
+        double thatThing = 0.005;//smallifys the numbers
+        ColorTags cam = focusCam1?pipeline1:pipeline2;
         if(cam.getYellowArea() == 0) {
             return 0;
         }
-        double alignment = focusCam1?221:103;
-        return (alignment-yellowX)/Constants.CAM_WIDTH * thatThing;
+        double alignment = focusCam1?230*2:105*2;
+        return (alignment-yellowX)/(Constants.CAM_WIDTH*2) * thatThing;
     }
 
 }

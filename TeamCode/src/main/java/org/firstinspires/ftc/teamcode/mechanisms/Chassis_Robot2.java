@@ -69,18 +69,18 @@ public class Chassis_Robot2 implements Mechanism{
         backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
     @Override
+//    public void run(Gamepad gamepad) {
+//        double y = -gamepad.left_stick_y;
+//        double x = gamepad.left_stick_x;
+//        double rx = (gamepad.right_trigger - gamepad.left_trigger) * Constants.ROTATION_SENSITIVITY + (-gamepad.right_stick_x * 0.5);
+//
+//        frontLeft.setPower(y - x + rx);
+//        backLeft.setPower(y + x + rx);
+//        frontRight.setPower(y - x - rx);
+//        backRight.setPower(y + x - rx);
+//    }
+
     public void run(Gamepad gamepad) {
-        double y = -gamepad.left_stick_y; // Remember, this is reversed!
-        double x = gamepad.left_stick_x;
-        double rx = (gamepad.right_trigger - gamepad.left_trigger) * Constants.ROTATION_SENSITIVITY + (-gamepad.right_stick_x * 0.5);
-
-        frontLeft.setPower(y - x + rx);
-        backLeft.setPower(y + x + rx);
-        frontRight.setPower(y - x - rx);
-        backRight.setPower(y + x - rx);
-    }
-
-    public void run(Gamepad gamepad, int wait) {
         //Get the positions of the left stick in terms of x and y
         //Invert y because of the input from the controller
         double stickX = Math.abs(gamepad.left_stick_x) < Constants.STICK_THRESH ? 0 : gamepad.left_stick_x;
@@ -88,26 +88,25 @@ public class Chassis_Robot2 implements Mechanism{
         //get the direction from the IMU
         double angle = 0;//imu.getAngularOrientation().firstAngle;
         //rotate the positions to prep for wheel powers
-        double rotatedX = (stickX * Math.cos(PI / 4 - angle)) - (stickY * Math.sin(PI / 4-angle));
-        double rotatedY = (stickY * Math.cos(PI / 4-angle)) + (stickX * Math.sin(PI / 4-angle));
+        double newSin = (stickY * Math.cos(-PI / 4 - angle)) + (stickX * Math.sin(-PI / 4-angle));
+        double newCos = (stickX * Math.cos(-PI / 4- angle)) - (stickY * Math.sin(-PI / 4-angle));
         //determine how much the robot should turn
         double rotation = (gamepad.left_trigger - gamepad.right_trigger) * Constants.ROTATION_SENSITIVITY + (-gamepad.right_stick_x * 0.5);
 
         //test if the robot should move
-        double stickPower = Math.sqrt(rotatedX * rotatedX + rotatedY * rotatedY);
+        double stickPower = Math.sqrt(newSin * newSin + newCos * newCos);
         boolean areTriggersDown = Math.abs(rotation) > 0;
         boolean areSticksMoved = stickPower > 0;
         if (areSticksMoved || areTriggersDown) {
             //add the rotation to the powers of the wheels
-            double motorMax = Math.max(Math.abs(rotatedX)+rotation, Math.abs(rotatedY)+rotation);
+            double motorMax = Math.max(Math.abs(newSin)+rotation, Math.abs(newCos)+rotation);
             double proportion = Math.max(1, motorMax);
             double num = (1 / proportion)* stickPower;
-            double flPower = num * -rotatedY - rotation;
-            double brPower = num * rotatedY + rotation;
-            double frPower = num * -rotatedX + rotation;
-            double blPower = num * rotatedX - rotation;
+            double flPower = num * newCos - rotation;
+            double brPower = num * newCos + rotation;
+            double frPower = num * newSin + rotation;
+            double blPower = num * newSin - rotation;
             //keep the powers proportional and within a range of -1 to 1
-
             frontLeft.setPower(flPower / proportion);
             backRight.setPower(brPower / proportion);
             frontRight.setPower(frPower / proportion);

@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -42,6 +43,11 @@ public class TestAuto_new extends LinearOpMode {
                         throw new RuntimeException(e);
                     }
                 }
+                if(gamepad1.a) {
+                    FtcDashboard.getInstance().startCameraStream(cameras.getCamera(1), 0);
+                }else {
+                    FtcDashboard.getInstance().startCameraStream(cameras.getCamera(2), 0);
+                }
                 telemetry.update();
             }
         }
@@ -60,7 +66,7 @@ public class TestAuto_new extends LinearOpMode {
         telemetry.addData("cameras", "done");
         telemetry.update();
         turret.init(hardwareMap);
-        SignalColor level;
+        int level;
         while(!cameras.initialized() && runtime.seconds() < 3) {
             telemetry.addData("camera_initialized:", false);
             telemetry.update();
@@ -75,14 +81,14 @@ public class TestAuto_new extends LinearOpMode {
         }
         telemetry.addData("started:", true);
         telemetry.update();
-        level = cameras.getColor();
+        level = cameras.getTag();
         //waitForStart();
         int parkingLocation;
         switch (level) {
-            case PURPLE:
+            case 1:
                 parkingLocation = -1;
                 break;
-            case ORANGE:
+            case 2:
                 parkingLocation = 0;
                 break;
             default:

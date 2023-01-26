@@ -16,4 +16,12 @@ public class Constants {
     public static final double WRIST_UP = 0.2;
     public static final double WRIST_DOWN = 0.5;
     public static final double CAMERA_POSITION = 0; //set this
+
+    //Camera Constants
+    public static final double fx = 578.272;
+    public static final double fy = 578.272;
+    public static final double cx = 402.145;
+    public static final double cy = 221.506;
+    //Tag Size
+    public static final double tagsize = 0.166;
 }
