@@ -170,7 +170,7 @@ public class Camera_Array implements Mechanism{
 
     public double calculateMovement(){
         double yellowX = getYellowLocation();
-        double thatThing = 0.005;//smallifys the numbers
+        double thatThing = 0.01;//smallifys the numbers
         ColorTags cam = focusCam1?pipeline1:pipeline2;
         if(cam.getYellowArea() == 0) {
             return 0;

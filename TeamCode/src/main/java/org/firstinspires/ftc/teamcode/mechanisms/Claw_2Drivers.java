@@ -57,4 +57,11 @@ public class Claw_2Drivers implements Mechanism {
     public double getWristPosition() {
         return wristPos;
     }
+
+    public void setWristPosition( double pos){
+        wrist.setPosition(pos);
+    }
+    public void setClawPos( double pos){
+        claw.setPosition(pos);
+    }
 }

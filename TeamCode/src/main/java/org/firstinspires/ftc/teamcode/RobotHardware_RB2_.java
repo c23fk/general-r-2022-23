@@ -459,5 +459,13 @@ public class RobotHardware_RB2_ {
         stopDrive();
     }
 
+    public double getLeftDistance(){
+        return leftDist.getDistance(DistanceUnit.INCH);
+    }
+
+    public double getRightDistance(){
+        return rightDist.getDistance(DistanceUnit.INCH);
+    }
+
 }
 
