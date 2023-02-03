@@ -33,7 +33,7 @@ public class Turret implements Mechanism {
         if(autoAdjust) {
             turret.setPosition(turret.getPosition() + movement);
             try {
-                Thread.sleep(100);
+                Thread.sleep(25);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }

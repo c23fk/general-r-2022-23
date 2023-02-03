@@ -77,7 +77,7 @@ public class TestAuto_new extends LinearOpMode {
         driveTrain.setPoseEstimate(new Pose2d(new Vector2d(65- robot.getRightDistance(),-66),Math.PI/2));
         TrajectorySequence initialSpline =driveTrain.trajectorySequenceBuilder(driveTrain.getPoseEstimate())
                 .splineTo(new Vector2d(36,-36),Math.PI/2)
-                .splineTo(new Vector2d(42,-13),0)
+                .splineTo(new Vector2d(42,-13.5),0)
                 .setReversed(true)
                 .addTemporalMarker(() -> {
                     turret.setTurretPosition(0.56);
@@ -85,7 +85,24 @@ public class TestAuto_new extends LinearOpMode {
                     robot.setSlidePosition(Constants.HIGH_POSITION);
                     robot.setWristPosition(Constants.WRIST_UP);
                 })
-                .splineTo(new Vector2d(24,-13),Math.PI)
+                .splineTo(new Vector2d(24,-15),Math.PI)
+                .build();
+
+        TrajectorySequence pickupSpline = driveTrain.trajectorySequenceBuilder(initialSpline.end())
+                .splineTo(new Vector2d(60,-14),0)
+                .addTemporalMarker(() -> {
+                    robot.setClawPosition(Constants.CLAW_CLOSED);
+                    robot.setWristPosition(Constants.WRIST_UP);
+                })
+                .waitSeconds(0.25)
+                .setReversed(true)
+                .addTemporalMarker(() -> {
+                    turret.setTurretPosition(0.56);
+                    turret.setAutoAdjust(true);
+                    robot.setSlidePosition(Constants.HIGH_POSITION);
+                    robot.setWristPosition(Constants.WRIST_UP);
+                })
+                .splineTo(new Vector2d(24,-13.5),Math.PI)
                 .build();
         telemetry.addData("path generation", "done");
         while(!cameras.initialized() && runtime.seconds() < 3) {
@@ -124,14 +141,23 @@ public class TestAuto_new extends LinearOpMode {
         telemetry.update();
         robot.setSlidePosition(Constants.LOW_POSITION);
         driveTrain.followTrajectorySequence(initialSpline);
-        sleep(1000);
+        sleep(2000);
         robot.setWristPosition(Constants.WRIST_DOWN);
-        sleep(100);
+        sleep(250);
         robot.setClawPosition(Constants.CLAW_OPEN);
         turret.setAutoAdjust(false);
         turret.setTurretPosition(0.5);
         sleep(100);
-        robot.setSlidePosition(0);
+        robot.setSlidePosition(130*5);
+        driveTrain.followTrajectorySequence(pickupSpline);
+        sleep(2000);
+        robot.setWristPosition(Constants.WRIST_DOWN);
+        robot.setClawPosition(Constants.CLAW_OPEN);
+        sleep(250);
+        turret.setAutoAdjust(false);
+        turret.setTurretPosition(0.5);
+        sleep(100);
+        robot.setSlidePosition(130*4);
         while(opModeIsActive()){}
         //robot.forwardDrive(0.5,2000,1);
     }
