@@ -23,6 +23,10 @@ public class Turret implements Mechanism {
     public void run(Gamepad gamepad){
         turretPos += Math.min(Math.max(0.001 * (gamepad.left_trigger-gamepad.right_trigger),-1),1);
 //        TODO: add presets
+        if(gamepad.left_stick_y * gamepad.left_stick_y +gamepad.left_stick_x * gamepad.left_stick_x > 0.3){
+            double turretAngle = Math.atan2(-gamepad.left_stick_y,gamepad.left_stick_x);
+            turretPos = Math.min(0.057266 * turretAngle +0.41009,0.59);
+        }
         turret.setPosition(turretPos);
     }
     public double getTurretPosition() {

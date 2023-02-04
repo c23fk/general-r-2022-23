@@ -44,7 +44,7 @@ public class Claw_2Drivers implements Mechanism {
         //clawPos -= 0.01 * gamepad.left_stick_y;
         claw.setPosition(clawPos);
 
-        wristPos += 0.03 * (-gamepad.left_stick_y);
+        wristPos += 0.03 * (gamepad.left_trigger-gamepad.right_trigger);
 
         claw.setPosition(clawPos);
         wrist.setPosition(wristPos);

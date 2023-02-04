@@ -30,21 +30,14 @@
 package org.firstinspires.ftc.teamcode;
 
 
-import com.acmerobotics.dashboard.FtcDashboard;
+
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
-
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.mechanisms.Camera_Array;
-import org.firstinspires.ftc.teamcode.mechanisms.Chassis_2Drivers;
 import org.firstinspires.ftc.teamcode.mechanisms.Chassis_Robot2;
-import org.firstinspires.ftc.teamcode.mechanisms.Claw_1Driver;
 import org.firstinspires.ftc.teamcode.mechanisms.Claw_2Drivers;
+import org.firstinspires.ftc.teamcode.mechanisms.Slides;
 import org.firstinspires.ftc.teamcode.mechanisms.Turret;
 
 /**
@@ -65,41 +58,22 @@ import org.firstinspires.ftc.teamcode.mechanisms.Turret;
 public class robo2_Iterative_Opmode extends OpMode {
     // Declare OpMode members.
     private final ElapsedTime runtime = new ElapsedTime();
-    private DcMotor slides = null;
-    private Camera_Array cameras = new Camera_Array(telemetry);
+    private final Camera_Array cameras = new Camera_Array(telemetry);
     private final Chassis_Robot2 chassis = new Chassis_Robot2();
     private final Claw_2Drivers claw = new Claw_2Drivers();
     private final Turret turret = new Turret();
-    private int slidesTarget = 0;
-
+    private final Slides slides = new Slides();
 
     /*
      * Code to run ONCE when the driver hits INIT
      */
     @Override
     public void init() {
-
-        // Initialize the hardware variables. Note that the strings used here as parameters
-        // to 'get' must correspond to the names assigned during the robot configuration
-        // step (using the FTC Robot Controller app on the phone).
-        slides = hardwareMap.get(DcMotor.class, "slides");
-        // Reverse the motor that runs backwards when connected directly to the battery
-        slides.setDirection(DcMotorSimple.Direction.FORWARD);
-        //set zero behaviors
-        slides.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        //reset encoders for all the motors
-        slides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        //initialize distance sensors
-
-        //init slides
-        slides.setTargetPosition(slidesTarget);
-        slides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        slides.setPower(Constants.SLIDE_POWER);
-        // Tell the driver that initialization is complete.
-
         chassis.init(hardwareMap);
         claw.init(hardwareMap);
         turret.init(hardwareMap);
+        slides.init(hardwareMap);
+        cameras.init(hardwareMap);
         telemetry.addData("Status", "Initialized");
     }
 
@@ -123,32 +97,11 @@ public class robo2_Iterative_Opmode extends OpMode {
      */
     @Override
     public void loop() {
-
-        //slide presets
-        if (gamepad2.dpad_up) {
-            slidesTarget = Constants.SLIDE_MAX;
-        } else if (gamepad2.dpad_right) {
-            slidesTarget = Constants.MID_POSITION;
-        } else if (gamepad2.dpad_left) {
-            slidesTarget = Constants.LOW_POSITION;
-        } else if (gamepad2.dpad_down) {
-            slidesTarget = 0;
-        }
-        //manual adjustments to slide positions
-        slidesTarget += -gamepad2.right_stick_y * 50;
-        slidesTarget = Range.clip(slidesTarget, -50, Constants.SLIDE_MAX);
-        //move the slides
-        slides.setTargetPosition(slidesTarget);
-        slides.setPower(Constants.SLIDE_POWER);
-        //reset the zero position of the slides
-        if (gamepad2.x) {
-            slides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            slides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        }
-
         chassis.run(gamepad1);
         claw.run(gamepad2);
         turret.run(gamepad2);
+        turret.setTurretPosition(turret.getTurretPosition() + (gamepad2.right_stick_button? cameras.calculateMovement() : 0));
+        slides.run(gamepad2);
         telemetry.addData("Slide Position: ", slides.getCurrentPosition());
         telemetry.addData("Turret Position: ", turret.getTurretPosition());
         telemetry.addData("FL: ", chassis.getFrontLeftPosition());

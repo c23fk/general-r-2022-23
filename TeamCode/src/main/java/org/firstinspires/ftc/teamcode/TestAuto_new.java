@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
+import com.acmerobotics.roadrunner.trajectory.TrajectoryGenerator;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -85,24 +86,20 @@ public class TestAuto_new extends LinearOpMode {
                     robot.setSlidePosition(Constants.HIGH_POSITION);
                     robot.setWristPosition(Constants.WRIST_UP);
                 })
-                .splineTo(new Vector2d(24,-15),Math.PI)
+                .splineTo(new Vector2d(24,-14),Math.PI)
                 .build();
-
-        TrajectorySequence pickupSpline = driveTrain.trajectorySequenceBuilder(initialSpline.end())
-                .splineTo(new Vector2d(60,-14),0)
-                .addTemporalMarker(() -> {
-                    robot.setClawPosition(Constants.CLAW_CLOSED);
-                    robot.setWristPosition(Constants.WRIST_UP);
-                })
-                .waitSeconds(0.25)
+        TrajectorySequence park1 = driveTrain.trajectorySequenceBuilder(new Pose2d(new Vector2d(24,-14),0))
                 .setReversed(true)
-                .addTemporalMarker(() -> {
-                    turret.setTurretPosition(0.56);
-                    turret.setAutoAdjust(true);
-                    robot.setSlidePosition(Constants.HIGH_POSITION);
-                    robot.setWristPosition(Constants.WRIST_UP);
-                })
-                .splineTo(new Vector2d(24,-13.5),Math.PI)
+                .splineTo(new Vector2d(12,-12),Math.PI)
+                .turn(Math.PI/2)
+                .build();
+        TrajectorySequence park2 = driveTrain.trajectorySequenceBuilder(new Pose2d(new Vector2d(24,-14),0))
+                .splineTo(new Vector2d(36,-12),0)
+                .turn(Math.PI/2)
+                .build();
+        TrajectorySequence park3 = driveTrain.trajectorySequenceBuilder(new Pose2d(new Vector2d(24,-14),0))
+                .splineTo(new Vector2d(60,-12),0)
+                .turn(Math.PI/2)
                 .build();
         telemetry.addData("path generation", "done");
         while(!cameras.initialized() && runtime.seconds() < 3) {
@@ -122,17 +119,16 @@ public class TestAuto_new extends LinearOpMode {
         telemetry.addData("started:", true);
         telemetry.update();
         level = cameras.getTag();
-        //waitForStart();
-        int parkingLocation;
+        TrajectorySequence parkingSpline;
         switch (level) {
             case 1:
-                parkingLocation = -1;
+                parkingSpline = park1;
                 break;
             case 2:
-                parkingLocation = 0;
+                parkingSpline = park2;
                 break;
             default:
-                parkingLocation = 1;
+                parkingSpline = park3;
                 break;
         }
         telemetryHandler.start();
@@ -143,22 +139,13 @@ public class TestAuto_new extends LinearOpMode {
         driveTrain.followTrajectorySequence(initialSpline);
         sleep(2000);
         robot.setWristPosition(Constants.WRIST_DOWN);
-        sleep(250);
+        sleep(500);
         robot.setClawPosition(Constants.CLAW_OPEN);
         turret.setAutoAdjust(false);
         turret.setTurretPosition(0.5);
-        sleep(100);
-        robot.setSlidePosition(130*5);
-        driveTrain.followTrajectorySequence(pickupSpline);
-        sleep(2000);
-        robot.setWristPosition(Constants.WRIST_DOWN);
+        robot.setWristPosition(Constants.WRIST_UP);
         robot.setClawPosition(Constants.CLAW_OPEN);
-        sleep(250);
-        turret.setAutoAdjust(false);
-        turret.setTurretPosition(0.5);
-        sleep(100);
-        robot.setSlidePosition(130*4);
-        while(opModeIsActive()){}
+        driveTrain.followTrajectorySequence(parkingSpline);
         //robot.forwardDrive(0.5,2000,1);
     }
 }
