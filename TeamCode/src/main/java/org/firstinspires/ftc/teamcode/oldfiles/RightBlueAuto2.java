@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.oldfiles;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
@@ -6,12 +6,13 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.mechanisms.Camera;
 import org.firstinspires.ftc.teamcode.opencv.SignalColor;
 
 @Disabled
-@Autonomous(name = "Left_Side_Blue", preselectTeleOp = "Layer Cake(1Driver)")
-public class LeftBlueAuto extends LinearOpMode {
+@Autonomous(name = "Right_Side_Blue_2")
+public class RightBlueAuto2 extends LinearOpMode {
 
     /**
      * Amount of time elapsed
@@ -59,13 +60,13 @@ public class LeftBlueAuto extends LinearOpMode {
                 break;
         }
         telemetryHandler.start();
-        robot.strafeRight(0.2,150,2);
-        robot.forwardDrive(0.75,900,2);
+        robot.forwardDrive(0.75,875,2);
         robot.setSlidePosition(Constants.MID_POSITION);
         robot.rotateToZero(0,1);
-        robot.strafeRight(0.15);
+        robot.strafeRight(-0.1);
         while(robot.getBackDistance()>30&&opModeIsActive()){}
         robot.stopDrive();
+        robot.strafeRight(0.3, -50, 1);
         sleep(1500);
         robot.setWristPosition(Constants.WRIST_DOWN);
         sleep(1000);
@@ -74,10 +75,23 @@ public class LeftBlueAuto extends LinearOpMode {
         robot.setWristPosition(Constants.WRIST_UP);
         robot.setSlidePosition(0);
         sleep(1000);
-        robot.strafeRight(0.5,-450,1);
-        robot.strafeRight(0.5,parkingLocation*800,3);
+        robot.strafeRight(0.5,350,1);
+        sleep(1000);
+
+
+        robot.forwardDrive(0.75,750,2);
+        sleep(2000);
+        robot.rotateLeft(0.2, 270, 2);
+        sleep(2000);
+
+
+
+
+        robot.strafeRight(0.5,(parkingLocation*1000)+200,3);
         sleep(1000);
         robot.rotateToZero(0,1);
+
+
         runtime.reset();
     }
 

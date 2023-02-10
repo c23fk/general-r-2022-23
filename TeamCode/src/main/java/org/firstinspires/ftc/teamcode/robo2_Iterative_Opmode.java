@@ -54,7 +54,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.Turret;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@TeleOp(name = "Susan(V-1)", group = "Iterative Opmode")
+@TeleOp(name = "Turret_Bot", group = "Iterative Opmode")
 public class robo2_Iterative_Opmode extends OpMode {
     // Declare OpMode members.
     private final ElapsedTime runtime = new ElapsedTime();
