@@ -3,8 +3,6 @@ package org.firstinspires.ftc.teamcode;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
-import com.acmerobotics.roadrunner.trajectory.Trajectory;
-import com.acmerobotics.roadrunner.trajectory.TrajectoryGenerator;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -12,12 +10,11 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.mechanisms.Camera_Array;
 import org.firstinspires.ftc.teamcode.mechanisms.Turret;
-import org.firstinspires.ftc.teamcode.opencv.SignalColor;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
 
-@Autonomous(name = "TestAuto", preselectTeleOp = "Layer Cake(1Driver)")
-public class TestAuto_new extends LinearOpMode {
+@Autonomous(name = "Right_Side_Auto")
+public class Right_Side_Auto extends LinearOpMode {
         //RED + RIGHT
             //66,
     /**
@@ -44,11 +41,7 @@ public class TestAuto_new extends LinearOpMode {
                 telemetry.addData("rightDist", robot.getRightDistance());
                 telemetry.addData("movement", cameras.calculateMovement());
                 telemetry.addData("focusCam1:", cameras.cam1Focus());
-//                if(gamepad1.right_bumper) {
-//                    turret.setAutoAdjust(true);
-//                } else {
-//                    turret.setAutoAdjust(false);
-//                }
+
                 turret.lockOn(cameras.calculateMovement());
                 if(gamepad1.a) {
                     FtcDashboard.getInstance().startCameraStream(cameras.getCamera(1), 0);
@@ -75,33 +68,28 @@ public class TestAuto_new extends LinearOpMode {
         telemetry.update();
         turret.init(hardwareMap);
         int level;
-        driveTrain.setPoseEstimate(new Pose2d(new Vector2d(65- robot.getRightDistance(),-66),Math.PI/2));
-        TrajectorySequence initialSpline =driveTrain.trajectorySequenceBuilder(driveTrain.getPoseEstimate())
-                .splineTo(new Vector2d(36,-36),Math.PI/2)
-                .splineTo(new Vector2d(42,-13.5),0)
-                .setReversed(true)
-                .addTemporalMarker(() -> {
-                    turret.setTurretPosition(0.56);
-                    turret.setAutoAdjust(true);
-                    robot.setSlidePosition(Constants.HIGH_POSITION);
-                    robot.setWristPosition(Constants.WRIST_UP);
-                })
-                .splineTo(new Vector2d(24,-14),Math.PI)
-                .build();
-        TrajectorySequence park1 = driveTrain.trajectorySequenceBuilder(new Pose2d(new Vector2d(24,-14),0))
-                .setReversed(true)
-                .splineTo(new Vector2d(12,-12),Math.PI)
-                .turn(Math.PI/2)
-                .build();
-        TrajectorySequence park2 = driveTrain.trajectorySequenceBuilder(new Pose2d(new Vector2d(24,-14),0))
-                .splineTo(new Vector2d(36,-12),0)
-                .turn(Math.PI/2)
-                .build();
-        TrajectorySequence park3 = driveTrain.trajectorySequenceBuilder(new Pose2d(new Vector2d(24,-14),0))
-                .splineTo(new Vector2d(60,-12),0)
-                .turn(Math.PI/2)
-                .build();
-        telemetry.addData("path generation", "done");
+//        driveTrain.setPoseEstimate(new Pose2d(new Vector2d(36,-66),Math.PI/2));
+//        TrajectorySequence initialSpline =driveTrain.trajectorySequenceBuilder(driveTrain.getPoseEstimate())
+//                .splineTo(new Vector2d(36,-18),Math.PI/2)
+//                .addTemporalMarker(() -> {
+//                    turret.setTurretPosition(0.5);
+//                    turret.setAutoAdjust(true);
+//                    robot.setSlidePosition(Constants.HIGH_POSITION);
+//                    robot.setWristPosition(Constants.WRIST_UP);
+//                })
+//                .splineToConstantHeading(new Vector2d(24,-15),Math.PI/2)
+//                .splineToConstantHeading(new Vector2d(20,-18),Math.PI/2)
+//                .build();
+//        TrajectorySequence park1 = driveTrain.trajectorySequenceBuilder(initialSpline.end())
+//                .splineToConstantHeading(new Vector2d(12,-18),Math.PI/2)
+//                .build();
+//        TrajectorySequence park2 = driveTrain.trajectorySequenceBuilder(initialSpline.end())
+//                .splineToConstantHeading(new Vector2d(36,-18),Math.PI/2)
+//                .build();
+//        TrajectorySequence park3 = driveTrain.trajectorySequenceBuilder(initialSpline.end())
+//                .splineToConstantHeading(new Vector2d(57.5,-18),Math.PI/2)
+//                .build();
+//        telemetry.addData("path generation", "done");
         while(!cameras.initialized() && runtime.seconds() < 3) {
             telemetry.addData("camera_initialized:", false);
             telemetry.update();
@@ -118,35 +106,46 @@ public class TestAuto_new extends LinearOpMode {
 
         telemetry.addData("started:", true);
         telemetry.update();
-        level = cameras.getTag();
-        TrajectorySequence parkingSpline;
-        switch (level) {
-            case 1:
-                parkingSpline = park1;
-                break;
-            case 2:
-                parkingSpline = park2;
-                break;
-            default:
-                parkingSpline = park3;
-                break;
-        }
+//        TrajectorySequence parkingSpline;
+
         telemetryHandler.start();
         telemetry.addData("Status", "running...");
         telemetry.addData("Version", "1.0");
         telemetry.update();
         robot.setSlidePosition(Constants.LOW_POSITION);
-        driveTrain.followTrajectorySequence(initialSpline);
-        sleep(2000);
+        //driveTrain.followTrajectorySequence(initialSpline);
+        robot.forwardDrive(0.5,2300,3);
+        turret.setTurretPosition(0.5);
+        turret.setAutoAdjust(true);
+        robot.setSlidePosition(Constants.HIGH_POSITION);
+        robot.setWristPosition(Constants.WRIST_UP);
+        robot.strafeRight(0.25,-750,3);
+        sleep(5000);
         robot.setWristPosition(Constants.WRIST_DOWN);
         sleep(500);
         robot.setClawPosition(Constants.CLAW_OPEN);
+        sleep(500);
         turret.setAutoAdjust(false);
         turret.setTurretPosition(0.5);
         robot.setWristPosition(Constants.WRIST_UP);
         robot.setClawPosition(Constants.CLAW_OPEN);
-        driveTrain.followTrajectorySequence(parkingSpline);
-        //robot.forwardDrive(0.5,2000,1);
+        sleep(500);
+        level = cameras.getTag();
+        switch (level) {
+            case 1:
+                robot.strafeRight(0.5,-750,1);
+                break;
+            case 3:
+                robot.strafeRight(0.5,1250,1);
+                break;
+            default:
+                robot.strafeRight(0.5,500,1);
+                break;
+        }
+        robot.setSlidePosition(0);
+        robot.forwardDrive(0.25,-1000,1);
+        sleep(1000);
+
     }
 }
 

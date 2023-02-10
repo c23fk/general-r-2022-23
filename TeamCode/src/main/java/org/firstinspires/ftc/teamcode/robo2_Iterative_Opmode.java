@@ -75,6 +75,7 @@ public class robo2_Iterative_Opmode extends OpMode {
         slides.init(hardwareMap);
         cameras.init(hardwareMap);
         telemetry.addData("Status", "Initialized");
+        telemetry.update();
     }
 
     /*
@@ -102,6 +103,9 @@ public class robo2_Iterative_Opmode extends OpMode {
         turret.run(gamepad2);
         turret.setTurretPosition(turret.getTurretPosition() + (gamepad2.right_stick_button? cameras.calculateMovement() : 0));
         slides.run(gamepad2);
+        if(gamepad2.b && slides.getCurrentPosition()>300){
+            turret.setTurretPosition(0.5);
+        }
         telemetry.addData("Slide Position: ", slides.getCurrentPosition());
         telemetry.addData("Turret Position: ", turret.getTurretPosition());
         telemetry.addData("FL: ", chassis.getFrontLeftPosition());

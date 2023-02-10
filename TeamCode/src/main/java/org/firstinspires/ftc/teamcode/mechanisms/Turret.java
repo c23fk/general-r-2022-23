@@ -6,11 +6,11 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.Constants;
 
-public class Turret implements Mechanism {
+public  class Turret implements Mechanism {
     private Servo turret = null;
-    private double turretPos;
+    private volatile double turretPos;
 
-    private boolean autoAdjust = false;
+    private volatile boolean autoAdjust = false;
 
     @Override
     public void init(HardwareMap hardwareMap){
@@ -21,8 +21,7 @@ public class Turret implements Mechanism {
 
     @Override
     public void run(Gamepad gamepad){
-        turretPos += Math.min(Math.max(0.001 * (gamepad.left_trigger-gamepad.right_trigger),-1),1);
-//        TODO: add presets
+        //turretPos += Math.min(Math.max(0.001 * (gamepad.left_trigger-gamepad.right_trigger),-1),1);
         if(gamepad.left_stick_y * gamepad.left_stick_y +gamepad.left_stick_x * gamepad.left_stick_x > 0.3){
             double turretAngle = Math.atan2(-gamepad.left_stick_y,gamepad.left_stick_x);
             turretPos = Math.min(0.057266 * turretAngle +0.41009,0.59);

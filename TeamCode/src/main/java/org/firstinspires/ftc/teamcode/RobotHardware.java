@@ -48,12 +48,7 @@ import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvWebcam;
-//import org.firstinspires.ftc.teamcode.vision.CubePipeline;
-//import org.firstinspires.ftc.teamcode.vision.ShippingElementPipeline;
-//import org.opencv.core.Point;
-//import org.openftc.easyopencv.OpenCvCamera;
-//import org.openftc.easyopencv.OpenCvCameraFactory;
-//import org.openftc.easyopencv.OpenCvCameraRotation;
+
 
 public class RobotHardware {
     /* Public OpMode members. */
