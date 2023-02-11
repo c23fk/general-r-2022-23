@@ -1,8 +1,8 @@
 package org.firstinspires.ftc.teamcode;
 
 public class Constants {
-    public static final int  LOW_POSITION = 2075;
-    public static final int MID_POSITION = 3125; //change
+    public static final int  LOW_POSITION = 1300;
+    public static final int MID_POSITION = 2500; //change
     public static final int HIGH_POSITION = 3700; //change
     public static final int SLIDE_MAX = 3827;
     public static final double STICK_THRESH = 0.1;

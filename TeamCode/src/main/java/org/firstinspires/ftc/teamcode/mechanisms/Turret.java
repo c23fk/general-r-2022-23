@@ -43,7 +43,7 @@ public  class Turret implements Mechanism {
         }
     }
 
-    public void setAutoAdjust(boolean autoAdjust) {
+    public synchronized void setAutoAdjust(boolean autoAdjust) {
         this.autoAdjust = autoAdjust;
     }
 

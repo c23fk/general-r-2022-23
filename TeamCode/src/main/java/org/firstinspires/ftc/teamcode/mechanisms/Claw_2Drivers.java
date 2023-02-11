@@ -17,7 +17,7 @@ public class Claw_2Drivers implements Mechanism {
         claw = hardwareMap.get(Servo.class, "claw");
         wrist = hardwareMap.get(Servo.class, "wrist");
         clawPos = Constants.CLAW_CLOSED;
-        wristPos = 0.5;
+        wristPos = Constants.WRIST_DOWN;
         claw.setPosition(clawPos);
         wrist.setPosition(wristPos);
     }
@@ -29,7 +29,7 @@ public class Claw_2Drivers implements Mechanism {
         } else if (gamepad.b) {
             clawPos = Constants.CLAW_OPEN;
         }
-        if(gamepad.dpad_up){
+        if(gamepad.dpad_up||gamepad.dpad_left||gamepad.dpad_right){
             wristPos = Constants.WRIST_UP+0.1;
         }
         if(gamepad.dpad_down){

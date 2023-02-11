@@ -23,8 +23,7 @@ public class Right_Side_Auto extends LinearOpMode {
     private final ElapsedTime runtime = new ElapsedTime();
     private final RobotHardware_RB2_ robot = new RobotHardware_RB2_();
     private final Camera_Array cameras = new Camera_Array(telemetry);
-
-    private  SampleMecanumDrive driveTrain = null;
+    //private  SampleMecanumDrive driveTrain = null;
     private final Turret turret = new Turret();
     Thread telemetryHandler = new Thread(){
         @Override
@@ -56,7 +55,7 @@ public class Right_Side_Auto extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        driveTrain = new SampleMecanumDrive(hardwareMap);
+        //driveTrain = new SampleMecanumDrive(hardwareMap);
         runtime.reset();
         telemetry.addData("Status", "Initializing");
         telemetry.update();
@@ -114,12 +113,12 @@ public class Right_Side_Auto extends LinearOpMode {
         telemetry.update();
         robot.setSlidePosition(Constants.LOW_POSITION);
         //driveTrain.followTrajectorySequence(initialSpline);
-        robot.forwardDrive(0.5,2300,3);
+        robot.forwardDrive(0.5,2450,3);
         turret.setTurretPosition(0.5);
         turret.setAutoAdjust(true);
         robot.setSlidePosition(Constants.HIGH_POSITION);
         robot.setWristPosition(Constants.WRIST_UP);
-        robot.strafeRight(0.25,-750,3);
+        robot.strafeRight(0.25,-500,3);
         sleep(5000);
         robot.setWristPosition(Constants.WRIST_DOWN);
         sleep(500);
@@ -136,10 +135,10 @@ public class Right_Side_Auto extends LinearOpMode {
                 robot.strafeRight(0.5,-750,1);
                 break;
             case 3:
-                robot.strafeRight(0.5,1250,1);
+                robot.strafeRight(0.5,1750,3);
                 break;
             default:
-                robot.strafeRight(0.5,500,1);
+                robot.strafeRight(0.5,750,1);
                 break;
         }
         robot.setSlidePosition(0);

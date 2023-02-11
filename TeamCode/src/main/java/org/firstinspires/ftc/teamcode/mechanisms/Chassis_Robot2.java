@@ -102,18 +102,18 @@ public class Chassis_Robot2 implements Mechanism{
         } else {
             stopDrive();
         }
-        if (gamepad.dpad_up) {
-            rotateToZero(0);
-        }
-        if (gamepad.dpad_left) {
-            rotateToZero(PI/2);
-        }
-        if (gamepad.dpad_down) {
-            rotateToZero(PI);
-        }
-        if (gamepad.dpad_right) {
-            rotateToZero(-PI/2);
-        }
+//        if (gamepad.dpad_up) {
+//            rotateToZero(0);
+//        }
+//        if (gamepad.dpad_left) {
+//            rotateToZero(PI/2);
+//        }
+//        if (gamepad.dpad_down) {
+//            rotateToZero(PI);
+//        }
+//        if (gamepad.dpad_right) {
+//            rotateToZero(-PI/2);
+//        }
     }
 
     public void stopDrive() {

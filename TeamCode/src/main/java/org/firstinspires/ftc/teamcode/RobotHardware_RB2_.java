@@ -234,12 +234,14 @@ public class RobotHardware_RB2_ {
         backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         //set powers
-        frontLeft.setPower(power);
-        frontRight.setPower(power);
-        backLeft.setPower(power);
-        backRight.setPower(power);
+
         //noinspection StatementWithEmptyBody
         while ((frontLeft.isBusy() || frontRight.isBusy() || backLeft.isBusy() || backRight.isBusy()) && timer.seconds() < timeout) {
+            double p = Math.min((timer.seconds()*2),1)*power;
+            frontLeft.setPower(p);
+            frontRight.setPower(p);
+            backLeft.setPower(p);
+            backRight.setPower(p);
         }
         stopDrive();
     }
@@ -274,13 +276,13 @@ public class RobotHardware_RB2_ {
         frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        //set powers
-        frontLeft.setPower(power);
-        frontRight.setPower(power);
-        backLeft.setPower(power);
-        backRight.setPower(power);
         //noinspection StatementWithEmptyBody
         while ((frontLeft.isBusy() || frontRight.isBusy() || backLeft.isBusy() || backRight.isBusy()) && timer.seconds() < timeout) {
+            double p = Math.min((timer.seconds()*2),1)*power;
+            frontLeft.setPower(p);
+            frontRight.setPower(p);
+            backLeft.setPower(p);
+            backRight.setPower(p);
         }
         stopDrive();
     }
