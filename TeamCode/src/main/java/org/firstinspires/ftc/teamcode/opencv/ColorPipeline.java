@@ -39,8 +39,8 @@ public class  ColorPipeline extends OpenCvPipeline {
         Scalar purpleLower = new Scalar(150,10,10);
         Scalar purpleUpper = new Scalar(170,255,255);
 
-        Scalar yellowLower = new Scalar(15,50,0);
-        Scalar yellowUpper = new Scalar(32,200,255);
+        Scalar yellowLower = new Scalar(15,75,150);
+        Scalar yellowUpper = new Scalar(25,230,255);
 
         double orangeArea = findColorContourArea(input, orangeContours, orangeLower, orangeUpper, new Scalar(255, 100, 0));
         double greenArea = findColorContourArea(input, greenContours, greenLower, greenUpper, new Scalar(0, 255, 0));

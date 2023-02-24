@@ -31,6 +31,7 @@ package org.firstinspires.ftc.teamcode;
 
 
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -105,6 +106,11 @@ public class robo2_Iterative_Opmode extends OpMode {
         slides.run(gamepad2);
         if(gamepad2.b && slides.getCurrentPosition()>300){
             turret.setTurretPosition(0.5);
+        }
+        if(gamepad2.a) {
+            FtcDashboard.getInstance().startCameraStream(cameras.getCamera(1), 0);
+        }else {
+            FtcDashboard.getInstance().startCameraStream(cameras.getCamera(2), 0);
         }
         telemetry.addData("Slide Position: ", slides.getCurrentPosition());
         telemetry.addData("Turret Position: ", turret.getTurretPosition());

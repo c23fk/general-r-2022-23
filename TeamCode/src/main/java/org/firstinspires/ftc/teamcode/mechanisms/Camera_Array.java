@@ -175,7 +175,7 @@ public class Camera_Array implements Mechanism{
         if(cam.getYellowArea() == 0) {
             return 0;
         }
-        double alignment = focusCam1?230*2:105*2;
+        double alignment = focusCam1?235*2:100*2;
         return (alignment-yellowX)/(Constants.CAM_WIDTH*2) * thatThing;
     }
 

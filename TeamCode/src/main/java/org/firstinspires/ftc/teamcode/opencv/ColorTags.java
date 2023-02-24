@@ -67,6 +67,8 @@ public class ColorTags extends OpenCvPipeline
         nativeApriltagPtr = AprilTagDetectorJNI.createApriltagDetector(AprilTagDetectorJNI.TagFamily.TAG_36h11.string, 3, 3);
     }
 
+    public ColorTags(){}
+
     @Override
     public void finalize()
     {
@@ -86,8 +88,8 @@ public class ColorTags extends OpenCvPipeline
     @Override
     public Mat processFrame(Mat input)
     {
-        Scalar yellowLower = new Scalar(15,50,0);
-        Scalar yellowUpper = new Scalar(32,200,255);
+        Scalar yellowLower = new Scalar(15,75,150);
+        Scalar yellowUpper = new Scalar(25,230,255);
         double yellowPosition = getColorPosition(input,yellowContours, yellowLower, yellowUpper, new Scalar(255, 255, 0));
 
         // Convert to greyscale
