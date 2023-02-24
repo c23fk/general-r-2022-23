@@ -90,7 +90,7 @@ public class RobotHardware_RB2_ {
         backRight.setDirection(DcMotor.Direction.FORWARD);
         //spin.setDirection(DcMotorSimple.Direction.REVERSE);
         slides.setDirection(DcMotorSimple.Direction.FORWARD);
-//        intake.setDirection(DcMotorSimple.Direction.FORWARD);
+//      intake.setDirection(DcMotorSimple.Direction.FORWARD);
         //set zero power behaviors for each motor
         frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);

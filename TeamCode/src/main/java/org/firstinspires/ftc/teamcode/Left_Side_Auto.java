@@ -106,6 +106,7 @@ public class Left_Side_Auto extends LinearOpMode {
             telemetry.update();
             sleep(50);
         }
+        telemetryHandler.start();
         telemetry.addData("Status", "running...");
         telemetry.addData("Version", "1.0");
         telemetry.update();
@@ -116,7 +117,7 @@ public class Left_Side_Auto extends LinearOpMode {
         turret.setAutoAdjust(true);
         robot.setSlidePosition(Constants.HIGH_POSITION);
         robot.setWristPosition(Constants.WRIST_UP);
-        robot.strafeRight(0.25,500,3);
+        robot.strafeRight(0.25,600,3);
         sleep(4000);
         robot.setWristPosition(Constants.WRIST_DOWN);
         sleep(500);
@@ -129,7 +130,7 @@ public class Left_Side_Auto extends LinearOpMode {
         sleep(500);
         switch (cameras.getTag()) {
             case 1:
-                robot.strafeRight(0.5,750,1);
+                robot.strafeRight(0.5,650,1);
                 break;
             case 3:
                 robot.strafeRight(0.5,-1750,3);
