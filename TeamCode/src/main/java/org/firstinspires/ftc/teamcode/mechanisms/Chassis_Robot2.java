@@ -1,13 +1,11 @@
 package org.firstinspires.ftc.teamcode.mechanisms;
 
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.gamepad2;
 import static java.lang.Math.PI;
-
-import android.graphics.Color;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -22,7 +20,7 @@ public class Chassis_Robot2 implements Mechanism{
     private DcMotor frontRight = null;
     private DcMotor backLeft = null;
     private DcMotor backRight = null;
-    private DistanceSensor rightDist = null;
+    private DistanceSensor frontSensor = null;
     private DistanceSensor leftDist = null;
     private ColorSensor color = null;
     private BNO055IMU imu = null;
@@ -44,7 +42,7 @@ public class Chassis_Robot2 implements Mechanism{
         parameters.loggingEnabled = false;
         imu.initialize(parameters);
         //distance sensors
-        rightDist = hardwareMap.get(DistanceSensor.class, "rightDist");
+        frontSensor = hardwareMap.get(DistanceSensor.class, "rightDist");
         leftDist = hardwareMap.get(DistanceSensor.class, "leftDist");
         //color sensor
         color = hardwareMap.get(ColorSensor.class, "color");
@@ -89,7 +87,7 @@ public class Chassis_Robot2 implements Mechanism{
             //add the rotation to the powers of the wheels
             double motorMax = Math.max(Math.abs(newSin)+rotation, Math.abs(newCos)+rotation);
             double proportion = Math.max(1, motorMax);
-            double num = (1 / proportion)* stickPower;
+            double num = (1 / proportion) * stickPower;
             double flPower = num * newCos - rotation;
             double brPower = num * newCos + rotation;
             double frPower = num * newSin + rotation;
@@ -102,18 +100,19 @@ public class Chassis_Robot2 implements Mechanism{
         } else {
             stopDrive();
         }
-//        if (gamepad.dpad_up) {
-//            rotateToZero(0);
-//        }
-//        if (gamepad.dpad_left) {
-//            rotateToZero(PI/2);
-//        }
-//        if (gamepad.dpad_down) {
-//            rotateToZero(PI);
-//        }
-//        if (gamepad.dpad_right) {
-//            rotateToZero(-PI/2);
-//        }
+        if (gamepad.dpad_up) {
+            rotateToZero(0,2);
+        }
+        if (gamepad.dpad_left) {
+            rotateToZero(PI/2,2);
+        }
+        if (gamepad.dpad_down) {
+            rotateToZero(PI,2);
+        }
+        if (gamepad.dpad_right) {
+            rotateToZero(-PI/2,2);
+        }
+
     }
 
     public void stopDrive() {
@@ -123,7 +122,16 @@ public class Chassis_Robot2 implements Mechanism{
         backLeft.setPower(0);
     }
 
-    private void rotateToZero(double angle) {
+    public void rue(){
+        frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+
+    public void rotateToZero(double angle, double timeout) {
+        System.out.println("running");
+        rue();
         //use a PID control loop to zero
         ElapsedTime timer = new ElapsedTime();
         timer.reset();
@@ -136,7 +144,7 @@ public class Chassis_Robot2 implements Mechanism{
         double current_time;
         double max_i = 0.1;
         //while(timer.seconds() < 5){
-        while (Math.abs(imu.getAngularOrientation().firstAngle - angle) > Constants.TOLERANCE) {
+        while (Math.abs(imu.getAngularOrientation().firstAngle - angle) > Constants.TOLERANCE && timer.seconds() < timeout) {
             current_time = timer.milliseconds();
             current_error = angle - imu.getAngularOrientation().firstAngle;
             double p = k_p * current_error;
@@ -144,9 +152,10 @@ public class Chassis_Robot2 implements Mechanism{
             i = Range.clip(i, -max_i, max_i);
             double d = k_d * ((current_error - previous_error) / (current_time - previous_time));
             double power = p + i + d;
-            frontLeft.setPower(power);
+            System.out.println(power);
+            frontLeft.setPower(-power);
             frontRight.setPower(power);
-            backLeft.setPower(power);
+            backLeft.setPower(-power);
             backRight.setPower(power);
             previous_error = current_error;
             previous_time = current_time;
@@ -177,13 +186,184 @@ public class Chassis_Robot2 implements Mechanism{
     public double getLeftDistance(){
         return leftDist.getDistance(DistanceUnit.CM);
     }
-    public double getRightDistance(){
-        return rightDist.getDistance(DistanceUnit.CM);
+    public double getFrontDistance(){
+        return frontSensor.getDistance(DistanceUnit.CM);
     }
     public double getRed(){
         return color.red();
     }
     public double getBlue(){
         return color.blue();
+    }
+    public int forwardDrive(double power, int position, double timeout) {
+        //TIMER :)
+        ElapsedTime timer = new ElapsedTime();
+        //reset encoders
+        frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //set target positions
+        frontLeft.setTargetPosition(position);
+        frontRight.setTargetPosition(position);
+        backLeft.setTargetPosition(position);
+        backRight.setTargetPosition(position);
+        //set to run to position
+        frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        //set powers
+
+        while ((frontLeft.isBusy() || frontRight.isBusy() || backLeft.isBusy() || backRight.isBusy()) && timer.seconds() < timeout) {
+            double p = Math.min((timer.seconds()*2),1)*power;
+            frontLeft.setPower(p);
+            frontRight.setPower(p);
+            backLeft.setPower(p);
+            backRight.setPower(p);
+        }
+        stopDrive();
+        return position;
+    }
+    public int forwardDrive(double power, int position, double timeout, double distance) {
+        //TIMER :)
+        ElapsedTime timer = new ElapsedTime();
+        //reset encoders
+        frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //set target positions
+        //set powers
+
+        while (frontLeft.getCurrentPosition() < position && getFrontDistance() > distance && timer.seconds() < timeout) {
+            double p = Math.min((timer.seconds()*2),1)*power;
+            p = Math.min(0.05 *Math.abs(distance-getFrontDistance()),1) * p;
+            frontLeft.setPower(p);
+            frontRight.setPower(p);
+            backLeft.setPower(p);
+            backRight.setPower(p);
+        }
+        stopDrive();
+        return frontLeft.getCurrentPosition();
+    }
+    public void fr45(double power, int position, double timeout) {
+        //TIMER :)
+        ElapsedTime timer = new ElapsedTime();
+        //reset encoders
+        frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //set target positions
+        frontLeft.setTargetPosition(position);
+        frontRight.setTargetPosition(0);
+        backLeft.setTargetPosition(0);
+        backRight.setTargetPosition(position);
+        //set to run to position
+        frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        //set powers
+
+        while ((frontLeft.isBusy() || frontRight.isBusy() || backLeft.isBusy() || backRight.isBusy()) && timer.seconds() < timeout) {
+            double p = Math.min((timer.seconds()*2),1)*power;
+            frontLeft.setPower(p);
+            frontRight.setPower(p);
+            backLeft.setPower(p);
+            backRight.setPower(p);
+        }
+        stopDrive();
+    }
+    public void fl45(double power, int position, double timeout) {
+        //TIMER :)
+        ElapsedTime timer = new ElapsedTime();
+        //reset encoders
+        frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //set target positions
+        frontLeft.setTargetPosition(0);
+        frontRight.setTargetPosition(position);
+        backLeft.setTargetPosition(position);
+        backRight.setTargetPosition(0);
+        //set to run to position
+        frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        //set powers
+
+        while ((frontLeft.isBusy() || frontRight.isBusy() || backLeft.isBusy() || backRight.isBusy()) && timer.seconds() < timeout) {
+            double p = Math.min((timer.seconds()*2),1)*power;
+            frontLeft.setPower(p);
+            frontRight.setPower(p);
+            backLeft.setPower(p);
+            backRight.setPower(p);
+        }
+        stopDrive();
+    }
+    public void strafeRight(double power, int position, double timeout) {
+        //TIMER :)
+        ElapsedTime timer = new ElapsedTime();
+        //reset encoders
+        frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //set target positions
+        frontLeft.setTargetPosition(position);
+        frontRight.setTargetPosition(-position);
+        backLeft.setTargetPosition(-position);
+        backRight.setTargetPosition(position);
+        //set to run to position
+        frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        while ((frontLeft.isBusy() || frontRight.isBusy() || backLeft.isBusy() || backRight.isBusy()) && timer.seconds() < timeout) {
+            double p = Math.min((timer.seconds()*2),1)*power;
+            frontLeft.setPower(p);
+            frontRight.setPower(p);
+            backLeft.setPower(p);
+            backRight.setPower(p);
+        }
+        stopDrive();
+    }
+    public void rotateLeft(double power, int position, double timeout) {
+        //TIMER :)
+        ElapsedTime timer = new ElapsedTime();
+        //reset encoders
+        frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //set target positions
+        frontLeft.setTargetPosition(position);
+        frontRight.setTargetPosition(position);
+        backLeft.setTargetPosition(position);
+        backRight.setTargetPosition(position);
+        //set to run to position
+        frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        //set powers
+        frontLeft.setPower(power);
+        frontRight.setPower(power);
+        backLeft.setPower(power);
+        backRight.setPower(power);
+        //noinspection StatementWithEmptyBody
+        while ((frontLeft.isBusy() || frontRight.isBusy() || backLeft.isBusy() || backRight.isBusy()) && timer.seconds() < timeout) {
+        }
+        stopDrive();
     }
 }

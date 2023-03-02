@@ -21,6 +21,7 @@ import java.util.ArrayList;
 
 public class ColorTags extends OpenCvPipeline
 {
+    public boolean initialized = false;
     private ArrayList<MatOfPoint> yellowContours = new ArrayList<>();
     Double yellowLocation = null;
     Double yellowSize;
@@ -88,8 +89,9 @@ public class ColorTags extends OpenCvPipeline
     @Override
     public Mat processFrame(Mat input)
     {
-        Scalar yellowLower = new Scalar(15,75,150);
-        Scalar yellowUpper = new Scalar(25,230,255);
+        initialized = true;
+        Scalar yellowLower = new Scalar(17,75,102);
+        Scalar yellowUpper = new Scalar(35,255,255);
         double yellowPosition = getColorPosition(input,yellowContours, yellowLower, yellowUpper, new Scalar(255, 255, 0));
 
         // Convert to greyscale
@@ -348,6 +350,9 @@ public class ColorTags extends OpenCvPipeline
     }
     public double getYellowLocation() {
         return yellowLocation ==null? 0:yellowLocation;
+    }
+    public boolean initialized(){
+        return initialized;
     }
 
 }

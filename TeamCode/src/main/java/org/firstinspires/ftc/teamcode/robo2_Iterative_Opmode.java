@@ -58,6 +58,7 @@ import org.firstinspires.ftc.teamcode.mechanisms.Turret;
 @TeleOp(name = "Turret_Bot", group = "Iterative Opmode")
 public class robo2_Iterative_Opmode extends OpMode {
     // Declare OpMode members.
+    private boolean bliped  = false;
     private final ElapsedTime runtime = new ElapsedTime();
     private final Camera_Array cameras = new Camera_Array(telemetry);
     private final Chassis_Robot2 chassis = new Chassis_Robot2();
@@ -112,6 +113,14 @@ public class robo2_Iterative_Opmode extends OpMode {
         }else {
             FtcDashboard.getInstance().startCameraStream(cameras.getCamera(2), 0);
         }
+        if(chassis.getFrontDistance() < 12){
+            if(!bliped){
+                gamepad2.rumbleBlips(2);
+                bliped = true;
+            }
+        }else{
+            bliped = false;
+        }
         telemetry.addData("Slide Position: ", slides.getCurrentPosition());
         telemetry.addData("Turret Position: ", turret.getTurretPosition());
         telemetry.addData("FL: ", chassis.getFrontLeftPosition());
@@ -119,7 +128,7 @@ public class robo2_Iterative_Opmode extends OpMode {
         telemetry.addData("BL: ", chassis.getBackLeftPosition());
         telemetry.addData("BR: ", chassis.getBackRightPosition());
         telemetry.addData("Angle: ", chassis.getAngle());
-        telemetry.addData("Right: ", chassis.getRightDistance());
+        telemetry.addData("Right: ", chassis.getFrontDistance());
         telemetry.addData("Left: ", chassis.getLeftDistance());
         telemetry.addData("Red: ", chassis.getRed());
         telemetry.addData("Blue: ", chassis.getBlue());

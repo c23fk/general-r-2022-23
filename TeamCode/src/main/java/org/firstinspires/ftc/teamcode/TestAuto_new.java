@@ -82,6 +82,7 @@ public class TestAuto_new extends LinearOpMode {
         telemetry.addData("started:", true);
         telemetry.update();
         level = cameras.getTag();
+        robot.rotateToZero(-Math.PI/2,2);
         //waitForStart();
         int parkingLocation;
         switch (level) {

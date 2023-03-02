@@ -11,12 +11,19 @@ public class Constants {
     public static final double ROTATION_SENSITIVITY = 0.5;
     public static final int CAM_WIDTH = 640;
     public static final int CAM_HEIGHT = 480;
-    public static final double TOLERANCE = Math.PI/32;
+    public static final double TOLERANCE = Math.PI/64;
     public static final double CLAW_OPEN = 0;
-    public static final double CLAW_CLOSED = 0.53;
+    public static final double CLAW_CLOSED = 0.54;
     public static final double WRIST_UP = 0.2;
     public static final double WRIST_DOWN = 0.55;
+
+    public static final double TURRET_LEFT = 0.57;
+    public static final double TURRET_RIGHT = 0.44035;
+    public static final double TURRET_CENTER = 0.5;
+
     public static final double CAMERA_POSITION = 0; //set this
+
+
 
     //Camera Constants
     public static final double fx = 578.272;

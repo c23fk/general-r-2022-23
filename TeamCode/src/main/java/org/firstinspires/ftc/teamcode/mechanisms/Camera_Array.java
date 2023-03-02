@@ -74,8 +74,7 @@ public class Camera_Array implements Mechanism{
                 // This will be called if the camera could not be opened
             }
         });
-        double start = System.currentTimeMillis();
-        while(pipeline1.getYellowArea() == -1|| pipeline2.getYellowArea() == -1){
+        while(!pipeline1.initialized()|| !pipeline2.initialized()){
             telemetry.addData("cameras:", "initializing");
             telemetry.update();
         }
