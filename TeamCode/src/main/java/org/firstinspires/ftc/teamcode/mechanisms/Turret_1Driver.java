@@ -4,11 +4,10 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.teamcode.Constants;
-
-public  class Turret implements Mechanism {
+public  class Turret_1Driver implements Mechanism {
     private Servo turret = null;
-    private volatile double turretPos;
+    private boolean xClicked = false;
+    private double turretPos;
 
     private volatile boolean autoAdjust = false;
 
@@ -21,10 +20,20 @@ public  class Turret implements Mechanism {
 
     @Override
     public void run(Gamepad gamepad){
-        //turretPos += Math.min(Math.max(0.001 * (gamepad.left_trigger-gamepad.right_trigger),-1),1);
-        if(gamepad.left_stick_y * gamepad.left_stick_y +gamepad.left_stick_x * gamepad.left_stick_x > 0.3){
-            double turretAngle = Math.atan2(-gamepad.left_stick_y,gamepad.left_stick_x);
-            turretPos = Math.min(0.057266 * turretAngle +0.41009,0.59);
+        if(gamepad.x){
+            if(!xClicked) {
+                setAutoAdjust(!autoAdjust);
+                xClicked = true;
+            }
+        }else{
+            xClicked = false;
+        }
+        if(gamepad.y){
+            turretPos = 0.5;
+            setAutoAdjust(false);
+        }
+        if(gamepad.dpad_down) {
+            setAutoAdjust(false);
         }
         turret.setPosition(turretPos);
     }
@@ -34,19 +43,22 @@ public  class Turret implements Mechanism {
 
     public void lockOn(double movement){
         if(autoAdjust) {
-            turret.setPosition(turret.getPosition() + movement);
-            try {
-                Thread.sleep(5);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
+            turretPos = turret.getPosition() + movement;
+//            try {
+//                Thread.sleep(5);
+//            } catch (InterruptedException e) {
+//                throw new RuntimeException(e);
+//            }
+            System.out.println("locking");
         }
     }
 
-    public synchronized void setAutoAdjust(boolean autoAdjust) {
+    public void setAutoAdjust(boolean autoAdjust) {
         this.autoAdjust = autoAdjust;
     }
-
+    public boolean getAutoAdjust(){
+        return autoAdjust;
+    }
     public void setTurretPosition(double pos) {
         turretPos = pos;
         turret.setPosition(turretPos);

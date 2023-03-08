@@ -30,16 +30,19 @@
 package org.firstinspires.ftc.teamcode;
 
 
-
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
 import org.firstinspires.ftc.teamcode.mechanisms.Camera_Array;
 import org.firstinspires.ftc.teamcode.mechanisms.Chassis_Robot2;
+import org.firstinspires.ftc.teamcode.mechanisms.Chassis_Robot2_1Driver;
+import org.firstinspires.ftc.teamcode.mechanisms.Claw_1Driver;
 import org.firstinspires.ftc.teamcode.mechanisms.Claw_2Drivers;
 import org.firstinspires.ftc.teamcode.mechanisms.Slides;
 import org.firstinspires.ftc.teamcode.mechanisms.Turret;
+import org.firstinspires.ftc.teamcode.mechanisms.Turret_1Driver;
 
 /**
  * This file contains an example of an iterative (Non-Linear) "OpMode".
@@ -55,15 +58,15 @@ import org.firstinspires.ftc.teamcode.mechanisms.Turret;
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
 
-@TeleOp(name = "Turret_Bot", group = "Iterative Opmode")
-public class robo2_Iterative_Opmode extends OpMode {
+@TeleOp(name = "Turret_Bot_1_driver", group = "Iterative Opmode")
+public class teleop_1Driver extends OpMode {
     // Declare OpMode members.
     private boolean bliped  = false;
     private final ElapsedTime runtime = new ElapsedTime();
     private final Camera_Array cameras = new Camera_Array(telemetry);
-    private final Chassis_Robot2 chassis = new Chassis_Robot2();
-    private final Claw_2Drivers claw = new Claw_2Drivers();
-    private final Turret turret = new Turret();
+    private final Chassis_Robot2_1Driver chassis = new Chassis_Robot2_1Driver();
+    private final Claw_1Driver claw = new Claw_1Driver();
+    private final Turret_1Driver turret = new Turret_1Driver();
     private final Slides slides = new Slides();
 
     /*
@@ -101,21 +104,21 @@ public class robo2_Iterative_Opmode extends OpMode {
     @Override
     public void loop() {
         chassis.run(gamepad1);
-        claw.run(gamepad2);
-        turret.run(gamepad2);
-        turret.setTurretPosition(turret.getTurretPosition() + (gamepad2.right_stick_button? cameras.calculateMovement() : 0));
-        slides.run(gamepad2);
-        if(gamepad2.b && slides.getCurrentPosition()>300){
+        claw.run(gamepad1);
+        turret.run(gamepad1);
+        slides.run(gamepad1);
+        turret.lockOn(cameras.calculateMovement());
+        if(gamepad1.b && slides.getCurrentPosition()>300){
             turret.setTurretPosition(0.5);
         }
-        if(gamepad2.a) {
+        if(gamepad1.a) {
             FtcDashboard.getInstance().startCameraStream(cameras.getCamera(1), 0);
         }else {
             FtcDashboard.getInstance().startCameraStream(cameras.getCamera(2), 0);
         }
         if(chassis.getFrontDistance() < 12){
             if(!bliped){
-                gamepad2.rumbleBlips(2);
+                gamepad1.rumbleBlips(2);
                 bliped = true;
             }
         }else{
@@ -135,6 +138,8 @@ public class robo2_Iterative_Opmode extends OpMode {
         telemetry.addData("cam2 -- position", cameras.yellowPos(2));
         telemetry.addData("cam 1 -- area", cameras.yellowArea(1));
         telemetry.addData("cam2 -- area", cameras.yellowArea(2));
+        telemetry.addData("movement", cameras.calculateMovement());
+        telemetry.addData("auto_adjust", turret.getAutoAdjust());
     }
 
 

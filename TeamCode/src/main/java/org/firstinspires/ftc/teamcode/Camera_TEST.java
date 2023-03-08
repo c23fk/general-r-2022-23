@@ -26,16 +26,18 @@ public class Camera_TEST extends LinearOpMode {
         public void run() {
             while (opModeIsActive()) {
                 telemetry.addData("Runtime(s): ", runtime.seconds());
+                telemetry.addData("Version: ", "12");
                 telemetry.addData("Yellow", cameras.getYellowLocation());
                 telemetry.addData("turretpos", turret.getTurretPosition());
                 telemetry.addData("cam1 -- position", cameras.yellowPos(1));
                 telemetry.addData("cam2 -- position", cameras.yellowPos(2));
                 telemetry.addData("cam 1 -- area", cameras.yellowArea(1));
                 telemetry.addData("cam2 -- area", cameras.yellowArea(2));
-                telemetry.addData("leftDist", robot.getLeftDistance());
-                telemetry.addData("rightDist", robot.getRightDistance());
+                telemetry.addData("backDist", robot.getBackDist());
+                telemetry.addData("frontDist", robot.getFrontDist());
                 telemetry.addData("movement", cameras.calculateMovement());
                 telemetry.addData("focusCam1:", cameras.cam1Focus());
+                telemetry.addData("angle:", robot.getAngle());
 
                 //turret.lockOn(cameras.calculateMovement());
                 turret.setTurretPosition(turret.getTurretPosition() + (gamepad1.right_stick_button? cameras.calculateMovement() : 0));

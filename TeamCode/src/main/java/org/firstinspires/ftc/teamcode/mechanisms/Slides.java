@@ -25,7 +25,7 @@ public class Slides implements Mechanism {
     @Override
     public void run(Gamepad gamepad){
         if (gamepad.dpad_up) {
-            slidesTarget = Constants.SLIDE_MAX;
+            slidesTarget = Constants.HIGH_POSITION;
         } else if (gamepad.dpad_right) {
             slidesTarget = Constants.MID_POSITION;
         } else if (gamepad.dpad_left) {
@@ -34,16 +34,16 @@ public class Slides implements Mechanism {
             slidesTarget = 0;
         }
         //manual adjustments to slide positions
-        slidesTarget += -gamepad.right_stick_y * 50;
+        slidesTarget += -gamepad.right_stick_y * 75;
         slidesTarget = Range.clip(slidesTarget, -50, Constants.SLIDE_MAX);
         //move the slides
         slides.setTargetPosition(slidesTarget);
         slides.setPower(Constants.SLIDE_POWER);
         //reset the zero position of the slides
-        if (gamepad.x) {
-            slides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            slides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        }
+//        if (gamepad.x) {
+//            slides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//            slides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//        }
     }
 
     public double getCurrentPosition() {

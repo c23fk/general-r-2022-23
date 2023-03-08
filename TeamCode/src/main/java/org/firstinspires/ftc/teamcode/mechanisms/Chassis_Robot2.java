@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.mechanisms;
 
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.gamepad2;
 import static java.lang.Math.PI;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
@@ -21,7 +20,7 @@ public class Chassis_Robot2 implements Mechanism{
     private DcMotor backLeft = null;
     private DcMotor backRight = null;
     private DistanceSensor frontSensor = null;
-    private DistanceSensor leftDist = null;
+    private DistanceSensor backSensor = null;
     private ColorSensor color = null;
     private BNO055IMU imu = null;
 
@@ -43,7 +42,7 @@ public class Chassis_Robot2 implements Mechanism{
         imu.initialize(parameters);
         //distance sensors
         frontSensor = hardwareMap.get(DistanceSensor.class, "rightDist");
-        leftDist = hardwareMap.get(DistanceSensor.class, "leftDist");
+        backSensor = hardwareMap.get(DistanceSensor.class, "leftDist");
         //color sensor
         color = hardwareMap.get(ColorSensor.class, "color");
 
@@ -77,7 +76,7 @@ public class Chassis_Robot2 implements Mechanism{
         double newSin = (stickY * Math.cos(-PI / 4 - angle)) + (stickX * Math.sin(-PI / 4-angle));
         double newCos = (stickX * Math.cos(-PI / 4- angle)) - (stickY * Math.sin(-PI / 4-angle));
         //determine how much the robot should turn
-        double rotation = (gamepad.left_trigger - gamepad.right_trigger) * Constants.ROTATION_SENSITIVITY + (-gamepad.right_stick_x * 0.5);
+        double rotation = (gamepad.left_trigger - gamepad.right_trigger) * Constants.ROTATION_SENSITIVITY + (-gamepad.right_stick_x * Constants.ROTATION_SENSITIVITY);
 
         //test if the robot should move
         double stickPower = Math.sqrt(newSin * newSin + newCos * newCos);
@@ -183,8 +182,8 @@ public class Chassis_Robot2 implements Mechanism{
         return backRight.getCurrentPosition();
     }
 
-    public double getLeftDistance(){
-        return leftDist.getDistance(DistanceUnit.CM);
+    public double getBackDistance(){
+        return backSensor.getDistance(DistanceUnit.CM);
     }
     public double getFrontDistance(){
         return frontSensor.getDistance(DistanceUnit.CM);
@@ -243,7 +242,35 @@ public class Chassis_Robot2 implements Mechanism{
 
         while (frontLeft.getCurrentPosition() < position && getFrontDistance() > distance && timer.seconds() < timeout) {
             double p = Math.min((timer.seconds()*2),1)*power;
-            p = Math.min(0.05 *Math.abs(distance-getFrontDistance()),1) * p;
+            p = Math.min(0.03 *Math.abs(distance-getFrontDistance()),1) * p;
+            frontLeft.setPower(p);
+            frontRight.setPower(p);
+            backLeft.setPower(p);
+            backRight.setPower(p);
+        }
+        stopDrive();
+        return frontLeft.getCurrentPosition();
+    }
+
+    public int forwardDriveBD(double power, int position, double timeout, double distance) {
+        //TIMER :)
+        ElapsedTime timer = new ElapsedTime();
+        //reset encoders
+        frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //set target positions
+        //set powers
+
+        while (frontLeft.getCurrentPosition() < position && (getBackDistance() < distance || frontLeft.getCurrentPosition() < position-500) && timer.seconds() < timeout) {
+            double p = Math.min((timer.seconds()*2),1)*power;
+            p = Math.min(0.03 *Math.abs(distance-getFrontDistance()),1) * p;
             frontLeft.setPower(p);
             frontRight.setPower(p);
             backLeft.setPower(p);

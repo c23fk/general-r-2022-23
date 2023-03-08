@@ -169,12 +169,12 @@ public class Camera_Array implements Mechanism{
 
     public double calculateMovement(){
         double yellowX = getYellowLocation();
-        double thatThing = 0.01;//smallifys the numbers
+        double thatThing = 0.0095;//smallifys the numbers
         ColorTags cam = focusCam1?pipeline1:pipeline2;
         if(cam.getYellowArea() == 0) {
             return 0;
         }
-        double alignment = focusCam1?235*2:100*2;
+        double alignment = focusCam1?450:200;
         return (alignment-yellowX)/(Constants.CAM_WIDTH*2) * thatThing;
     }
 

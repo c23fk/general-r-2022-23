@@ -1,21 +1,16 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.Const;
-import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.mechanisms.Camera_Array;
 import org.firstinspires.ftc.teamcode.mechanisms.Turret;
-import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
 
-@Autonomous(name = "Right_Side_Auto")
-public class Right_Side_Auto extends LinearOpMode {
+@Autonomous(name = "Right_Side_Red_Auto")
+public class Right_Side_Red_Auto extends LinearOpMode {
     //RED + RIGHT
     //66,
     /**
@@ -39,8 +34,8 @@ public class Right_Side_Auto extends LinearOpMode {
                 telemetry.addData("cam2 -- position", cameras.yellowPos(2));
                 telemetry.addData("cam 1 -- area", cameras.yellowArea(1));
                 telemetry.addData("cam2 -- area", cameras.yellowArea(2));
-                telemetry.addData("leftDist", robot.getLeftDistance());
-                telemetry.addData("rightDist", robot.getRightDistance());
+                telemetry.addData("backDist", robot.getBackDist());
+                telemetry.addData("frontDist", robot.getFrontDist());
                 telemetry.addData("movement", cameras.calculateMovement());
                 telemetry.addData("focusCam1:", cameras.cam1Focus());
                 telemetry.addData("step:", step);
@@ -75,13 +70,6 @@ public class Right_Side_Auto extends LinearOpMode {
         //turret init
         turret.init(hardwareMap);
         int level;
-//        while(!cameras.initialized() && runtime.seconds() < 3) {
-//            telemetry.addData("camera_initialized:", false);
-//            telemetry.update();
-//        }
-//        telemetry.addData("camera_initialized:", true);
-//        telemetry.update();
-
         //wait for match to start
         while(!isStarted() && !isStopRequested()){
             cameras.run(gamepad2);
@@ -92,30 +80,28 @@ public class Right_Side_Auto extends LinearOpMode {
         telemetryHandler.start();
         robot.setSlidePosition(Constants.LOW_POSITION);
         step = "going to junction 1";
-        robot.forwardDrive(0.7,2450,3);
-        turret.setTurretPosition(0.5);
-        turret.setAutoAdjust(true);
+        robot.forwardDrive(0.7,2400,3);
         robot.setSlidePosition(Constants.HIGH_POSITION);
         robot.setWristPosition(Constants.WRIST_UP);
         robot.strafeRight(0.25,-500,3);
+        turret.setAutoAdjust(true);
         step = "placing first cone";
-        sleep(1000);
+        sleep(3000);
         robot.setWristPosition(Constants.WRIST_DOWN);
         sleep(500);
         robot.setClawPosition(Constants.CLAW_OPEN);
-        sleep(500);
         step = "reset for next cone";
         turret.setAutoAdjust(false);
         turret.setTurretPosition(0.5);
         //shift back a bit
-        robot.forwardDrive(0.25, -100,1);
         robot.setWristPosition(Constants.WRIST_DOWN);
         robot.setSlidePosition(550);
         robot.setClawPosition(Constants.CLAW_OPEN);
         step = "going to stack 1";
         robot.rotateToZero(-Math.PI/2,2);
+        robot.strafeRight(0.25, 100,1);
         //move to junction
-        int returnDistance = robot.forwardDrive(0.5, 1500,4,12);
+        int returnDistance = robot.forwardDrive(0.5, 1500,4,12)+100;
         robot.setClawPosition(Constants.CLAW_CLOSED);
         sleep(750);
         robot.setSlidePosition(Constants.LOW_POSITION);
@@ -123,22 +109,30 @@ public class Right_Side_Auto extends LinearOpMode {
         robot.setWristPosition(Constants.WRIST_UP);
         turret.setTurretPosition(Constants.TURRET_LEFT);
         step = "going back to junction";
-        robot.forwardDrive(0.5,-returnDistance/2,2);
-        robot.setSlidePosition(Constants.HIGH_POSITION);
-        robot.forwardDrive(0.25,-returnDistance/2,2);
+        new Thread(){
+            @Override
+            public void run() {
+                try {
+                    sleep(1000);
+                    robot.setSlidePosition(Constants.HIGH_POSITION);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }.start();
+        robot.forwardDrive(0.5,-returnDistance,3);
         turret.setAutoAdjust(true);
-        robot.strafeRight(0.25,-150,1);
+        step = "placing";
+        robot.strafeRight(0.2,-100,1);
         sleep(3000);
         robot.setWristPosition(Constants.WRIST_DOWN);
         sleep(500);
         robot.setClawPosition(Constants.CLAW_OPEN);
-        sleep(500);
         turret.setAutoAdjust(false);
         turret.setTurretPosition(0.5);
         robot.setWristPosition(Constants.WRIST_UP);
-        robot.setSlidePosition(500);
         robot.setClawPosition(Constants.CLAW_OPEN);
-        robot.strafeRight(0.25,100,1);
+        step = "parking";
         robot.rotateToZero(0,2);
         level = cameras.getTag();
         switch (level) {
@@ -146,7 +140,7 @@ public class Right_Side_Auto extends LinearOpMode {
                 robot.strafeRight(0.5,-750,1);
                 break;
             case 3:
-                robot.strafeRight(0.5,1750,3);
+                robot.strafeRight(0.5,1800,3);
                 break;
             default:
                 robot.strafeRight(0.5,750,1);

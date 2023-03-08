@@ -11,13 +11,14 @@ public class Claw_1Driver implements Mechanism {
     private Servo wrist = null;
     private double clawPos;
     private double wristPos;
+    private boolean aClicked = false;
 
     @Override
     public void init(HardwareMap hardwareMap){
         claw = hardwareMap.get(Servo.class, "claw");
         wrist = hardwareMap.get(Servo.class, "wrist");
         clawPos = Constants.CLAW_CLOSED;
-        wristPos = 0.5;
+        wristPos = Constants.WRIST_DOWN;
         claw.setPosition(clawPos);
         wrist.setPosition(wristPos);
     }
@@ -25,9 +26,12 @@ public class Claw_1Driver implements Mechanism {
     @Override
     public void run(Gamepad gamepad){
         if (gamepad.a) {
-            clawPos = Constants.CLAW_CLOSED;
-        } else if (gamepad.b) {
-            clawPos = Constants.CLAW_OPEN;
+            if(!aClicked) {
+                clawPos = clawPos == Constants.CLAW_CLOSED?Constants.CLAW_OPEN:Constants.CLAW_CLOSED;
+                aClicked = true;
+            }
+        } else {
+            aClicked = false;
         }
         if(gamepad.dpad_up){
             wristPos = Constants.WRIST_UP+0.1;

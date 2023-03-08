@@ -30,15 +30,11 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -51,8 +47,6 @@ public class RobotHardware_RB2_ {
     private Servo wrist = null;
     private Servo claw = null;
     private BNO055IMU imu = null;
-    private DistanceSensor leftDist = null;
-    private DistanceSensor rightDist = null;
     private ColorSensor color = null;
     /* local OpMode members. */
     HardwareMap hardwareMap = null;
@@ -73,8 +67,6 @@ public class RobotHardware_RB2_ {
         chassis.init(hardwareMap);
 
         // Define and initialize motors
-        leftDist = hardwareMap.get(DistanceSensor.class, "leftDist");
-        rightDist = hardwareMap.get(DistanceSensor.class, "rightDist");
         color = hardwareMap.get(ColorSensor.class, "color");
 
 
@@ -164,13 +156,13 @@ public class RobotHardware_RB2_ {
         chassis.rotateToZero(angle,timeout);
     }
 
-    public double getLeftDistance(){
-        return leftDist.getDistance(DistanceUnit.INCH);
+    public double getFrontDist(){
+        return chassis.getFrontDistance();
+    }
+    public double getBackDist(){
+        return chassis.getBackDistance();
     }
 
-    public double getRightDistance(){
-        return rightDist.getDistance(DistanceUnit.INCH);
-    }
 
 }
 
